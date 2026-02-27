@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB-SEC | Cybersecurity Platform v3.2</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17; --bg-secondary: #111827; --bg-card: #1a1f2e;
+            --text-primary: #e2e8f0; --text-secondary: #94a3b8; --text-muted: #64748b;
+            --accent-cyan: #06b6d4; --accent-blue: #3b82f6; --accent-green: #10b981;
+            --accent-red: #ef4444; --accent-orange: #f97316; --accent-purple: #8b5cf6;
+            --accent-yellow: #eab308; --border: #1e293b; --border-hover: #334155;
+            --glass: rgba(17, 24, 39, 0.8); --glass-border: rgba(255,255,255,0.06);
+            --glow-cyan: 0 0 20px rgba(6,182,212,0.3); --glow-red: 0 0 20px rgba(239,68,68,0.4);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit',sans-serif; }
+        body { background:var(--bg-primary); color:var(--text-primary); min-height:100vh; }
+        .mono { font-family:'JetBrains Mono',monospace; }
+        ::-webkit-scrollbar { width:6px; height:6px; }
+        ::-webkit-scrollbar-track { background:var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background:var(--accent-cyan); border-radius:3px; opacity:0.5; }
+        ::selection { background:rgba(6,182,212,0.3); }
+
+        /* Animations */
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes glow { 0%,100%{box-shadow:0 0 5px rgba(6,182,212,.3)} 50%{box-shadow:0 0 20px rgba(6,182,212,.6)} }
+        @keyframes dangerPulse { 0%,100%{box-shadow:0 0 5px rgba(239,68,68,.3)} 50%{box-shadow:0 0 15px rgba(239,68,68,.7)} }
+        .fade-in { animation:fadeIn .4s ease-out; }
+        .pulse { animation:pulse 2s infinite; }
+        .spin { animation:spin 1s linear infinite; }
+
+        /* Layout */
+        .card { background:var(--bg-card); border:1px solid var(--glass-border); border-radius:12px; padding:20px; }
+        .card:hover { border-color:var(--border-hover); }
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+        .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+        .flex { display:flex; } .flex-col { flex-direction:column; } .gap-2 { gap:8px; } .gap-3 { gap:12px; } .gap-4 { gap:16px; }
+        .items-center { align-items:center; } .justify-between { justify-content:space-between; }
+        .w-full { width:100%; } .hidden { display:none!important; }
+        .text-sm { font-size:0.875rem; } .text-xs { font-size:0.75rem; } .text-lg { font-size:1.125rem; } .text-xl { font-size:1.25rem; }
+        .font-bold { font-weight:700; } .font-semibold { font-weight:600; }
+        .text-cyan { color:var(--accent-cyan); } .text-red { color:var(--accent-red); } .text-green { color:var(--accent-green); }
+        .text-yellow { color:var(--accent-yellow); } .text-purple { color:var(--accent-purple); } .text-muted { color:var(--text-muted); }
+        .mb-2 { margin-bottom:8px; } .mb-3 { margin-bottom:12px; } .mb-4 { margin-bottom:16px; }
+        .mt-3 { margin-top:12px; } .mt-4 { margin-top:16px; }
+        .p-2 { padding:8px; } .p-3 { padding:12px; } .p-4 { padding:16px; }
+        .rounded { border-radius:8px; } .rounded-lg { border-radius:12px; } .rounded-full { border-radius:9999px; }
+
+        /* Inputs & Buttons */
+        input, select, textarea { background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary);
+            padding:10px 14px; border-radius:8px; font-size:0.875rem; outline:none; transition:border .2s; }
+        input:focus, select:focus, textarea:focus { border-color:var(--accent-cyan); box-shadow:0 0 0 2px rgba(6,182,212,.15); }
+        .btn { padding:10px 18px; border-radius:8px; border:none; cursor:pointer; font-weight:600; font-size:0.875rem;
+            transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
+        .btn-primary { background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue)); color:white; }
+        .btn-primary:hover { box-shadow:var(--glow-cyan); transform:translateY(-1px); }
+        .btn-danger { background:linear-gradient(135deg,#991b1b,#dc2626); color:white; }
+        .btn-danger:hover { box-shadow:var(--glow-red); }
+        .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text-secondary); }
+        .btn-ghost:hover { border-color:var(--accent-cyan); color:var(--accent-cyan); }
+        .btn-success { background:linear-gradient(135deg,#059669,var(--accent-green)); color:white; }
+        .btn-warning { background:linear-gradient(135deg,#d97706,var(--accent-orange)); color:white; }
+        .btn-sm { padding:6px 12px; font-size:0.75rem; }
+        .btn-lg { padding:14px 24px; font-size:1rem; }
+        .btn:disabled { opacity:.5; cursor:not-allowed; }
+        .btn-kill { background:linear-gradient(135deg,#450a0a,#7f1d1d,#991b1b); color:#fca5a5; border:1px solid #dc2626; }
+        .btn-kill:hover { background:linear-gradient(135deg,#7f1d1d,#dc2626); color:white; animation:dangerPulse 1.5s infinite; }
+
+        /* Tags & Badges */
+        .badge { padding:3px 10px; border-radius:9999px; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+        .badge-critical { background:#7f1d1d; color:#fca5a5; } .badge-high { background:#9a3412; color:#fdba74; }
+        .badge-medium { background:#854d0e; color:#fde047; } .badge-low { background:#166534; color:#86efac; }
+        .badge-info { background:#1e3a5f; color:#93c5fd; }
+
+        /* Progress */
+        .progress { height:6px; background:var(--bg-primary); border-radius:3px; overflow:hidden; }
+        .progress-bar { height:100%; border-radius:3px; transition:width .3s; background:linear-gradient(90deg,var(--accent-cyan),var(--accent-blue)); }
+
+        /* Tab System */
+        .tab-btn { padding:10px 18px; border-radius:8px; border:none; cursor:pointer; font-weight:500; font-size:0.8rem;
+            background:transparent; color:var(--text-muted); transition:all .2s; display:flex; align-items:center; gap:6px; }
+        .tab-btn:hover { color:var(--text-primary); background:rgba(255,255,255,.05); }
+        .tab-btn.active { background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue)); color:white; }
+        .tab-content { display:none; animation:fadeIn .3s ease-out; }
+        .tab-content.active { display:block; }
+
+        /* Navigation centrée et responsive */
+        .nav {
+            background: rgba(17, 24, 39, 0.5);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 8px 24px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-container {
+            display: flex;
+            gap: 4px;
+            max-width: 1200px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+
+        @media (max-width: 1024px) {
+            .nav-container {
+                justify-content: flex-start;
+                padding: 0 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                padding: 8px 12px;
+                justify-content: flex-start;
+            }
+            
+            .nav-container {
+                gap: 2px;
+            }
+            
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+            
+            .tab-btn i {
+                width: 12px;
+                height: 12px;
+            }
+        }
+
+        /* Pour les très petits écrans */
+        @media (max-width: 480px) {
+            .tab-btn span {
+                display: none;
+            }
+            
+            .tab-btn i {
+                margin-right: 0;
+                width: 16px;
+                height: 16px;
+            }
+            
+            .tab-btn {
+                padding: 8px;
+            }
+        }
+
+        /* Login Screen */
+        #loginScreen { position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center;
+            background:radial-gradient(ellipse at center,#0f172a 0%,#020617 100%); }
+        .login-card { background:var(--bg-card); border:1px solid var(--glass-border); border-radius:16px; padding:40px;
+            width:420px; max-width:95vw; box-shadow:0 25px 50px rgba(0,0,0,.5); }
+        .login-logo { font-size:2rem; font-weight:900; background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-align:center; margin-bottom:8px; }
+
+        /* Notifications */
+        #notifications { position:fixed; top:16px; right:16px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+        .notification { padding:12px 18px; border-radius:10px; font-size:.85rem; animation:slideIn .3s ease-out;
+            backdrop-filter:blur(10px); border:1px solid var(--glass-border); max-width:400px; }
+        .notification.success { background:rgba(16,185,129,.15); border-color:rgba(16,185,129,.3); color:var(--accent-green); }
+        .notification.error { background:rgba(239,68,68,.15); border-color:rgba(239,68,68,.3); color:var(--accent-red); }
+        .notification.warning { background:rgba(249,115,22,.15); border-color:rgba(249,115,22,.3); color:var(--accent-orange); }
+        .notification.info { background:rgba(6,182,212,.15); border-color:rgba(6,182,212,.3); color:var(--accent-cyan); }
+
+        /* Risk colors */
+        .risk-critical { color:#ef4444; } .risk-high { color:#f97316; } .risk-medium { color:#eab308; } .risk-low { color:#10b981; }
+
+        /* Lock overlay */
+        .lock-overlay { position:absolute; left:0; right:0; bottom:0; top:48px; background:rgba(0,0,0,.7); backdrop-filter:blur(3px); display:flex;
+            align-items:center; justify-content:center; border-radius:0 0 12px 12px; z-index:10; }
+        .lock-overlay i { color:var(--accent-red); }
+
+        /* Checkbox */
+        .check-option { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-primary);
+            border:1px solid var(--border); border-radius:8px; cursor:pointer; transition:all .2s; font-size:.8rem; }
+        .check-option:hover { border-color:var(--accent-cyan); }
+        .check-option.active { border-color:var(--accent-cyan); background:rgba(6,182,212,.08); }
+        .check-option input[type="checkbox"] { accent-color:var(--accent-cyan); width:16px; height:16px; }
+
+        /* Scan level cards */
+        .level-card { padding:14px; border:1px solid var(--border); border-radius:10px; cursor:pointer; transition:all .2s;
+            background:var(--bg-primary); text-align:center; }
+        .level-card:hover { border-color:var(--accent-cyan); transform:translateY(-2px); }
+        .level-card.active { border-color:var(--accent-cyan); background:rgba(6,182,212,.1); box-shadow:var(--glow-cyan); }
+        .level-card.danger { border-color:var(--accent-red); }
+        .level-card.danger.active { background:rgba(239,68,68,.1); box-shadow:var(--glow-red); }
+
+        /* Tables */
+        table { width:100%; border-collapse:collapse; }
+        th,td { padding:10px 14px; text-align:left; border-bottom:1px solid var(--border); font-size:.8rem; }
+        th { color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px; font-size:.7rem; }
+        tr:hover { background:rgba(255,255,255,.02); }
+        .hover-row:hover { background:rgba(6,182,212,.08) !important; }
+
+        /* Terminal */
+        .terminal { background:#0c0c0c; border:1px solid #333; border-radius:8px; padding:16px; font-family:'JetBrains Mono',monospace;
+            font-size:.75rem; color:#a0a0a0; max-height:400px; overflow-y:auto; line-height:1.6; }
+        .terminal .log-info { color:#3b82f6; } .terminal .log-success { color:#10b981; }
+        .terminal .log-warning { color:#f59e0b; } .terminal .log-error { color:#ef4444; }
+        .terminal .log-critical { color:#dc2626; font-weight:bold; }
+
+        /* Modal */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); z-index:100;
+            display:flex; align-items:center; justify-content:center; }
+        .modal { background:var(--bg-card); border:1px solid var(--glass-border); border-radius:16px; padding:30px;
+            max-width:600px; width:95%; max-height:80vh; overflow-y:auto; }
+
+        /* Header */
+        .header { background:var(--glass); backdrop-filter:blur(12px); border-bottom:1px solid var(--glass-border);
+            padding:12px 24px; position:sticky; top:0; z-index:50; }
+        .header-logo { font-size:1.3rem; font-weight:900; background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+        /* Viewer badge */
+        .viewer-notice { background:rgba(249,115,22,.1); border:1px solid rgba(249,115,22,.3); border-radius:8px;
+            padding:10px 16px; color:var(--accent-orange); font-size:.85rem; margin-bottom:16px; }
+
+        /* Module cards */
+        .module-card { background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:12px;
+            cursor:pointer; transition:all .2s; position:relative; }
+        .module-card:hover { border-color:var(--accent-cyan); transform:translateY(-2px); }
+        .module-card.selected { border-color:var(--accent-cyan); background:rgba(6,182,212,.1); }
+        .module-card.disabled { opacity:0.5; cursor:not-allowed; }
+        .module-card.disabled:hover { transform:none; border-color:var(--border); }
+        .install-badge { position:absolute; top:8px; right:8px; }
+
+        /* Multi-scan list */
+        .scan-item { display:flex; align-items:center; justify-content:space-between; padding:10px;
+            background:var(--bg-primary); border-radius:6px; margin-bottom:8px; }
+        .scan-item:hover { background:rgba(6,182,212,.05); }
+
+        @media (max-width:768px) {
+            .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
+            .header { padding:8px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- NOTIFICATIONS -->
+    <div id="notifications"></div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo">LAB-SEC</div>
+            <p class="text-muted text-sm" style="text-align:center;margin-bottom:24px">Cybersecurity Platform v3.2</p>
+            <div class="flex flex-col gap-3">
+                <div>
+                    <label class="text-sm text-muted" style="display:block;margin-bottom:4px">Username</label>
+                    <input type="text" id="loginUser" class="w-full" placeholder="admin" autocomplete="username">
+                </div>
+                <div>
+                    <label class="text-sm text-muted" style="display:block;margin-bottom:4px">Password</label>
+                    <input type="password" id="loginPass" class="w-full" placeholder="********" autocomplete="current-password">
+                </div>
+                <div>
+                    <label class="text-sm text-muted" style="display:block;margin-bottom:4px">Authentication</label>
+                    <select id="loginAuthType" class="w-full">
+                        <option value="local">Local Account</option>
+                        <option value="radius">RADIUS Server</option>
+                    </select>
+                </div>
+                <div id="loginError" class="text-red text-sm hidden"></div>
+                <button id="loginBtn" class="btn btn-primary btn-lg w-full" style="justify-content:center;margin-top:8px">
+                    <i data-lucide="log-in" style="width:18px;height:18px"></i> Sign In
+                </button>
+            </div>
+            <p class="text-muted text-xs" style="text-align:center;margin-top:16px">Default: admin/admin or viewer/viewer</p>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" class="hidden" style="min-height:100vh;display:flex;flex-direction:column">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));padding:8px;border-radius:10px">
+                        <i data-lucide="shield-check" style="width:22px;height:22px;color:white"></i>
+                    </div>
+                    <div>
+                        <div class="header-logo">LAB-SEC</div>
+                        <div class="text-xs text-muted">Cybersecurity Platform v3.2</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="killAllBtn" class="btn btn-kill btn-sm" title="Emergency Kill All Scans">
+                        <i data-lucide="octagon-x" style="width:14px;height:14px"></i> <span class="hide-mobile">KILL ALL</span>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <span id="userBadge" class="badge badge-info mono"></span>
+                        <button id="logoutBtn" class="btn btn-ghost btn-sm">
+                            <i data-lucide="log-out" style="width:14px;height:14px"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAV centré et responsive -->
+        <div class="nav" id="mainNav">
+            <div class="nav-container">
+                <button class="tab-btn active" data-tab="scanner"><i data-lucide="scan-line" style="width:14px;height:14px"></i>Scanner</button>
+                <button class="tab-btn" data-tab="dashboard"><i data-lucide="layout-dashboard" style="width:14px;height:14px"></i>Dashboard</button>
+                <button class="tab-btn" data-tab="discovery"><i data-lucide="radar" style="width:14px;height:14px"></i>Discovery</button>
+                <button class="tab-btn" data-tab="tools"><i data-lucide="wrench" style="width:14px;height:14px"></i>Tools</button>
+                <button class="tab-btn" data-tab="cve"><i data-lucide="bug" style="width:14px;height:14px"></i>CVE DB</button>
+                <button class="tab-btn" data-tab="history"><i data-lucide="history" style="width:14px;height:14px"></i>History</button>
+                <button class="tab-btn" data-tab="results"><i data-lucide="bar-chart-3" style="width:14px;height:14px"></i>Results</button>
+                <button class="tab-btn" data-tab="logs"><i data-lucide="terminal" style="width:14px;height:14px"></i>Logs</button>
+                <button class="tab-btn" data-tab="admin"><i data-lucide="settings" style="width:14px;height:14px"></i>Admin</button>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <main style="flex:1;padding:20px 24px;max-width:1400px;margin:0 auto;width:100%">
+            <div id="viewerNotice" class="viewer-notice hidden">
+                <i data-lucide="eye" style="width:16px;height:16px;display:inline;vertical-align:middle"></i>
+                <strong>Viewer Mode</strong> — You can view reports and navigate, but scanning is restricted to admins.
+            </div>
+            
+            <!-- SCANNER TAB -->
+            <div id="tab-scanner" class="tab-content active fade-in">
+                <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+                    <div class="flex flex-col gap-4">
+                        <div class="card">
+                            <h3 class="font-semibold mb-3 flex items-center gap-2"><i data-lucide="crosshair" style="width:18px;height:18px;color:var(--accent-cyan)"></i>Target</h3>
+                            <div class="grid-2 gap-3">
+                                <div><label class="text-xs text-muted">Target</label><input type="text" id="targetInput" class="w-full mono" placeholder="192.168.1.1 or domain.com"></div>
+                                <div><label class="text-xs text-muted">Mode</label>
+                                    <div class="flex gap-2">
+                                        <button id="modeReal" class="btn btn-primary btn-sm" style="flex:1;justify-content:center">Real (Nmap)</button>
+                                        <button id="modeSim" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center">Simulation</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Scan Level -->
+                        <div class="card">
+                            <h3 class="font-semibold mb-3"><i data-lucide="gauge" style="width:18px;height:18px;color:var(--accent-blue);display:inline"></i> Scan Level</h3>
+                            <div class="grid-4" id="scanLevels"></div>
+                            <div class="text-xs text-muted mt-3" id="levelDesc"></div>
+                        </div>
+
+                        <!-- Nmap Options -->
+                        <div class="card" id="nmapOptionsCard">
+                            <h3 class="font-semibold mb-3"><i data-lucide="sliders-horizontal" style="width:18px;height:18px;color:var(--accent-purple);display:inline"></i> Nmap Options</h3>
+                            <div class="grid-4" id="nmapOptions">
+                                <label class="check-option"><input type="checkbox" data-opt="syn_scan" checked>-sS SYN</label>
+                                <label class="check-option"><input type="checkbox" data-opt="tcp_connect">-sT TCP</label>
+                                <label class="check-option"><input type="checkbox" data-opt="udp_scan">-sU UDP</label>
+                                <label class="check-option"><input type="checkbox" data-opt="no_ping">-Pn No Ping</label>
+                                <label class="check-option"><input type="checkbox" data-opt="os_detect" checked>-O OS</label>
+                                <label class="check-option"><input type="checkbox" data-opt="version_detect" checked>-sV Version</label>
+                                <label class="check-option"><input type="checkbox" data-opt="script_scan" checked>-sC Scripts</label>
+                                <label class="check-option"><input type="checkbox" data-opt="aggressive">-A Aggressive</label>
+                                <label class="check-option"><input type="checkbox" data-opt="traceroute">Traceroute</label>
+                                <label class="check-option"><input type="checkbox" data-opt="all_ports">-p- All Ports</label>
+                                <label class="check-option"><input type="checkbox" data-opt="vuln_scripts">Vuln Scripts</label>
+                                <label class="check-option"><input type="checkbox" data-opt="fragment">-f Fragment</label>
+                            </div>
+                            <div class="grid-2 gap-3 mt-3">
+                                <div><label class="text-xs text-muted">Port Range</label><input type="text" id="portRange" class="w-full mono" placeholder="1-1000 or 80,443"></div>
+                                <div><label class="text-xs text-muted">Timing</label><select id="timing" class="w-full"><option value="">Default</option><option value="0">T0 Paranoid</option><option value="2">T2 Polite</option><option value="3">T3 Normal</option><option value="4">T4 Aggressive</option><option value="5">T5 Insane</option></select></div>
+                            </div>
+                        </div>
+
+                        <!-- Modules à risque -->
+                        <div class="card" id="riskModulesCard" style="position:relative">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-semibold"><i data-lucide="alert-triangle" style="width:18px;height:18px;color:var(--accent-red);display:inline"></i> Modules à risque</h3>
+                                <div class="flex gap-2 items-center">
+                                    <span id="lockStatus" class="badge badge-critical">LOCKED</span>
+                                    <button id="unlockBtn" class="btn btn-warning btn-sm">Déverrouiller</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Sélecteur de type de scan -->
+                            <div class="flex gap-2 mb-4">
+                                <button id="scanTypeNmap" class="btn btn-primary btn-sm active" onclick="setScanType('nmap')">
+                                    <i data-lucide="scan-line" style="width:14px;height:14px"></i> Nmap seul
+                                </button>
+                                <button id="scanTypeRisk" class="btn btn-ghost btn-sm" onclick="setScanType('risk')">
+                                    <i data-lucide="alert-triangle" style="width:14px;height:14px"></i> Modules risque
+                                </button>
+                                <button id="scanTypeCombined" class="btn btn-ghost btn-sm" onclick="setScanType('combined')">
+                                    <i data-lucide="merge" style="width:14px;height:14px"></i> Combiné
+                                </button>
+                            </div>
+                            
+                            <!-- Liste des modules -->
+                            <div id="riskModulesList" class="grid-3" style="max-height:300px;overflow-y:auto;min-height:100px"></div>
+                            
+                            <!-- Overlay de verrouillage -->
+                            <div id="lockOverlay" class="lock-overlay">
+                                <div style="text-align:center">
+                                    <i data-lucide="lock" style="width:32px;height:32px;color:var(--accent-red)"></i>
+                                    <p class="text-sm mt-3">Modules à risque verrouillés</p>
+                                    <p class="text-xs text-muted mt-1">Cliquez sur <b>Déverrouiller</b> pour accéder</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Multi-scan manager -->
+                        <div class="card">
+                            <h3 class="font-semibold mb-3">
+                                <i data-lucide="layers" style="width:18px;height:18px;color:var(--accent-purple);display:inline"></i>
+                                Scans actifs (<span id="activeScansCount">0</span>)
+                            </h3>
+                            <div id="activeScansList" class="text-sm"></div>
+                        </div>
+                    </div>
+
+                    <!-- Colonne droite -->
+                    <div class="flex flex-col gap-4">
+                        <div class="card">
+                            <h3 class="font-semibold mb-3"><i data-lucide="play-circle" style="width:18px;height:18px;color:var(--accent-green);display:inline"></i> Control</h3>
+                            <button id="startScanBtn" class="btn btn-success btn-lg w-full" style="justify-content:center">
+                                <i data-lucide="play" style="width:18px;height:18px"></i> Lancer le scan
+                            </button>
+                            <div id="scanProgress" class="hidden mt-4">
+                                <div class="flex justify-between mb-2"><span class="text-sm">Progress</span><span id="pPct" class="text-sm text-cyan mono">0%</span></div>
+                                <div class="progress"><div id="pBar" class="progress-bar" style="width:0%"></div></div>
+                                <div class="flex gap-2 mt-3">
+                                    <button id="stopBtn" class="btn btn-danger btn-sm">Stop</button>
+                                    <button id="killBtn" class="btn btn-kill btn-sm">Kill Nmap</button>
+                                </div>
+                                <div id="scanStat" class="text-xs text-muted mt-2">Initializing...</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="font-semibold mb-3"><i data-lucide="zap" style="width:18px;height:18px;color:var(--accent-yellow);display:inline"></i> Quick Tools</h3>
+                            <div class="flex flex-col gap-2">
+                                <button class="btn btn-ghost btn-sm w-full" onclick="doQuickTool('ping')">Ping Test</button>
+                                <button class="btn btn-ghost btn-sm w-full" onclick="doQuickTool('dns')">DNS Lookup</button>
+                                <button class="btn btn-ghost btn-sm w-full" onclick="doQuickTool('ssl')">SSL/TLS Test</button>
+                                <button class="btn btn-ghost btn-sm w-full" onclick="doQuickTool('whois')">WHOIS</button>
+                                <button class="btn btn-ghost btn-sm w-full" onclick="doQuickTool('trace')">Traceroute</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="font-semibold mb-3">Stats</h3>
+                            <div id="sideStats" class="text-sm"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DASHBOARD -->
+            <div id="tab-dashboard" class="tab-content fade-in">
+                <div class="grid-4 mb-4" id="dashCards"></div>
+                <div class="grid-2 gap-4">
+                    <div class="card"><h3 class="font-semibold mb-3">Recent Scans</h3><div id="dashRecent"></div></div>
+                    <div class="card"><h3 class="font-semibold mb-3">Alerts</h3><div id="dashAlerts"></div></div>
+                </div>
+            </div>
+
+            <!-- DISCOVERY -->
+            <div id="tab-discovery" class="tab-content fade-in">
+                <div class="card mb-4">
+                    <h3 class="font-semibold mb-3">Network Discovery</h3>
+                    <div class="flex gap-3 items-end">
+                        <div style="flex:1"><input type="text" id="discNet" class="w-full mono" placeholder="192.168.1.0/24"></div>
+                        <label class="check-option"><input type="checkbox" id="discPorts">Ports</label>
+                        <label class="check-option"><input type="checkbox" id="discOS">OS</label>
+                        <button id="discBtn" class="btn btn-primary">Discover</button>
+                    </div>
+                </div>
+                <div id="discResults" class="card hidden"><h3 class="font-semibold mb-3">Hosts Found</h3><div id="discHosts"></div></div>
+            </div>
+
+            <!-- TOOLS -->
+            <div id="tab-tools" class="tab-content fade-in">
+                <div class="grid-2 gap-4">
+                    <div class="card"><h3 class="font-semibold mb-3">WHOIS Lookup</h3>
+                        <div class="flex gap-2"><input type="text" id="whoisInput" class="mono" style="flex:1" placeholder="example.com"><button class="btn btn-primary btn-sm" onclick="doWhois()">Search</button></div>
+                        <div id="whoisResult" class="mt-3 text-sm"></div>
+                    </div>
+                    <div class="card"><h3 class="font-semibold mb-3">DNS Resolution</h3>
+                        <div class="flex gap-2"><input type="text" id="dnsInput" class="mono" style="flex:1" placeholder="example.com"><button class="btn btn-primary btn-sm" onclick="doDNS()">Resolve</button></div>
+                        <div id="dnsResult" class="mt-3 text-sm"></div>
+                    </div>
+                    <div class="card"><h3 class="font-semibold mb-3">SSL/TLS Test</h3>
+                        <div class="flex gap-2"><input type="text" id="sslInput" class="mono" style="flex:1" placeholder="example.com"><button class="btn btn-primary btn-sm" onclick="doSSL()">Test</button></div>
+                        <div id="sslResult" class="mt-3 text-sm"></div>
+                    </div>
+                    <div class="card"><h3 class="font-semibold mb-3">Traceroute</h3>
+                        <div class="flex gap-2"><input type="text" id="traceInput" class="mono" style="flex:1" placeholder="8.8.8.8">
+                        <label class="check-option"><input type="checkbox" id="traceAdv">Advanced</label>
+                        <button class="btn btn-primary btn-sm" onclick="doTrace()">Trace</button></div>
+                        <div id="traceResult" class="mt-3 text-sm"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CVE DATABASE -->
+            <div id="tab-cve" class="tab-content fade-in">
+                <div class="card mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold">CVE Database</h3>
+                        <button class="btn btn-primary btn-sm" onclick="updateCVE()">Update CVE DB</button>
+                    </div>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="cveSearch" class="mono" style="flex:1" placeholder="Search CVE-XXXX-XXXX or keyword">
+                        <select id="cveSev" class="">
+                            <option value="">All Severity</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" onclick="searchCVE()">Search</button>
+                    </div>
+                    <div id="cveResults"></div>
+                </div>
+            </div>
+
+            <!-- HISTORY -->
+            <div id="tab-history" class="tab-content fade-in">
+                <div class="card">
+                    <h3 class="font-semibold mb-3">Scan History</h3>
+                    <div class="flex gap-2 mb-3">
+                        <select id="historyType" class="" onchange="loadHistory()">
+                            <option value="all">Tous les scans</option>
+                            <option value="nmap">Nmap uniquement</option>
+                            <option value="risk">Modules risque uniquement</option>
+                        </select>
+                    </div>
+                    <div id="historyTable"></div>
+                </div>
+            </div>
+
+            <!-- RESULTS -->
+            <div id="tab-results" class="tab-content fade-in">
+                <div id="resultsContent">
+                    <div class="card" style="text-align:center;padding:60px">
+                        <i data-lucide="bar-chart-3" style="width:48px;height:48px;color:var(--text-muted)"></i>
+                        <p class="text-muted mt-3">Run a scan to see results here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOGS -->
+            <div id="tab-logs" class="tab-content fade-in">
+                <div class="card">
+                    <div class="flex justify-between mb-3">
+                        <h3 class="font-semibold">System Logs</h3>
+                        <button class="btn btn-ghost btn-sm" onclick="loadLogs()">Refresh</button>
+                    </div>
+                    <div id="logTerminal" class="terminal"></div>
+                </div>
+            </div>
+
+            <!-- ADMIN -->
+            <div id="tab-admin" class="tab-content fade-in">
+                <div class="grid-2 gap-4">
+                    <!-- User Management -->
+                    <div class="card">
+                        <h3 class="font-semibold mb-3">User Management</h3>
+                        <div id="userList" class="user-list"></div>
+                        
+                        <!-- Add User Form -->
+                        <div class="mt-4 p-3" style="background:var(--bg-primary);border-radius:8px">
+                            <h4 class="text-sm font-semibold mb-2 text-cyan">➕ Create New User</h4>
+                            <div class="flex flex-col gap-2">
+                                <input type="text" id="newUser" class="w-full" placeholder="Username">
+                                <input type="password" id="newPass" class="w-full" placeholder="Password (min 8 chars)">
+                                <select id="newRole" class="w-full">
+                                    <option value="viewer">👁️ Viewer</option>
+                                    <option value="admin">🛡️ Admin</option>
+                                </select>
+                                <button class="btn btn-primary btn-sm" onclick="createUser()">
+                                    <i data-lucide="user-plus" style="width:14px;height:14px"></i> Create User
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audit Log -->
+                    <div class="card">
+                        <h3 class="font-semibold mb-3">📋 Audit Log</h3>
+                        <div id="auditLog" style="max-height:500px;overflow-y:auto"></div>
+                    </div>
+
+                    <!-- System -->
+                    <div class="card">
+                        <h3 class="font-semibold mb-3">⚙️ System</h3>
+                        <div class="flex flex-col gap-2">
+                            <button class="btn btn-primary btn-sm" onclick="backupDatabase()">
+                                <i data-lucide="database" style="width:14px;height:14px"></i> Backup Database
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="updateCVE()">
+                                <i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Update CVE Database
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="confirmClearDB()">
+                                <i data-lucide="trash-2" style="width:14px;height:14px"></i> Clear Scan Data
+                            </button>
+                        </div>
+                        <div id="sysInfo" class="mt-3 p-2" style="background:var(--bg-primary);border-radius:6px"></div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="card">
+                        <h3 class="font-semibold mb-3">🔐 Change Password</h3>
+                        <div class="flex flex-col gap-2">
+                            <input type="password" id="oldPw" class="w-full" placeholder="Current password">
+                            <input type="password" id="newPw" class="w-full" placeholder="New password (min 8)">
+                            <button class="btn btn-primary btn-sm" onclick="changeMyPassword()">
+                                <i data-lucide="key" style="width:14px;height:14px"></i> Update Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- UNLOCK MODAL -->
+    <div id="unlockModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3 class="font-semibold mb-3 text-red">Déverrouiller les modules à risque</h3>
+            <p class="text-sm text-muted mb-3">Entrez le mot de passe de sécurité pour déverrouiller les modules : Hashcat, Nikto, SQLMap, etc.</p>
+            <input type="password" id="unlockPw" class="w-full mb-3" placeholder="Security password">
+            <div class="flex gap-2">
+                <button class="btn btn-warning" onclick="submitUnlock()">Déverrouiller</button>
+                <button class="btn btn-ghost" onclick="closeUnlockModal()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE OPTIONS MODAL -->
+    <div id="moduleOptionsModal" class="modal-overlay hidden">
+        <div class="modal" style="max-width:600px">
+            <h3 class="font-semibold mb-3" id="moduleOptionsTitle">Configuration du module</h3>
+            <div id="moduleOptionsContent" class="mb-4"></div>
+            <div class="flex gap-2 justify-end">
+                <button class="btn btn-ghost" onclick="closeModuleOptions()">Annuler</button>
+                <button class="btn btn-primary" onclick="saveModuleOptions()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INSTALL MODULE MODAL -->
+    <div id="installModuleModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3 class="font-semibold mb-3">Module non installé</h3>
+            <p id="installModuleMessage" class="text-sm mb-4">Le module n'est pas installé sur le système.</p>
+            <div class="flex gap-2 justify-end">
+                <button class="btn btn-ghost" onclick="closeInstallModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="installModule()">Installer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODULE INFO POPUP -->
+    <div id="moduleInfoPopup" class="modal-overlay hidden">
+        <div class="modal" style="max-width:400px">
+            <h3 class="font-semibold mb-3" id="moduleInfoTitle">Informations du module</h3>
+            <div id="moduleInfoContent" class="text-sm mb-4"></div>
+            <div class="flex justify-end">
+                <button class="btn btn-primary" onclick="closeModuleInfo()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ================================================
+    // LAB-SEC FRONTEND v3.2 - CORRIGÉ
+    // ================================================
+    const API = window.location.origin + '/api';
+    let SESSION = { id: null, username: null, role: null };
+    let currentScan = null;
+    let scanInterval = null;
+    let activeScansInterval = null;
+    let realScan = true;
+    let selectedLevel = 'normal';
+    let modulesUnlocked = false;
+    let currentScanType = 'nmap';
+    let selectedRiskModules = {};
+    let moduleOptions = {};
+    let pendingModule = null;
+    let lastResults = null;
+
+    // ============ UTILS ============
+    const el = id => document.getElementById(id);
+    const qs = s => document.querySelector(s);
+    const qsa = s => document.querySelectorAll(s);
+
+    function notify(msg, type = 'info') {
+        const d = document.createElement('div');
+        d.className = `notification ${type}`;
+        d.textContent = msg;
+        el('notifications').appendChild(d);
+        setTimeout(() => d.remove(), 5000);
+    }
+
+    async function api(path, opts = {}) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (SESSION.id) headers['X-Session-Id'] = SESSION.id;
+        try {
+            const r = await fetch(API + path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+            const data = await r.json();
+            if (r.status === 401 && data.code === 'AUTH_REQUIRED') { showLogin(); return null; }
+            if (r.status === 403 && data.code === 'VIEWER_NO_SCAN') { notify('Viewers cannot perform scans', 'error'); return null; }
+            if (r.status === 403 && data.code === 'MODULES_LOCKED') { notify('Unlock high-risk modules first', 'warning'); return null; }
+            if (!r.ok) { notify(data.error || 'Error', 'error'); return null; }
+            return data;
+        } catch (e) {
+            notify('Connection error', 'error');
+            return null;
+        }
+    }
+
+    // ============ AUTH ============
+    function showLogin() {
+        el('loginScreen').style.display = 'flex';
+        el('mainApp').classList.add('hidden');
+        SESSION = { id: null, username: null, role: null };
+    }
+
+    function showApp() {
+        el('loginScreen').style.display = 'none';
+        el('mainApp').classList.remove('hidden');
+        el('mainApp').style.display = 'flex';
+        el('userBadge').textContent = `${SESSION.username} [${SESSION.role}]`;
+        
+        if (SESSION.role === 'viewer') {
+            el('viewerNotice').classList.remove('hidden');
+            el('startScanBtn').disabled = true;
+            el('startScanBtn').textContent = 'Scan (Admin Only)';
+            const adminTab = document.querySelector('[data-tab="admin"]');
+            if (adminTab) adminTab.style.display = 'none';
+        } else {
+            el('viewerNotice').classList.add('hidden');
+            el('startScanBtn').disabled = false;
+            el('startScanBtn').textContent = 'Lancer le scan';
+            const adminTab = document.querySelector('[data-tab="admin"]');
+            if (adminTab) adminTab.style.display = 'flex';
+        }
+        initApp();
+    }
+
+    el('loginBtn').onclick = async () => {
+        const un = el('loginUser').value.trim();
+        const pw = el('loginPass').value;
+        const at = el('loginAuthType').value;
+        
+        if (!un || !pw) {
+            el('loginError').textContent = 'Fill all fields';
+            el('loginError').classList.remove('hidden');
+            return;
+        }
+        
+        el('loginBtn').disabled = true;
+        el('loginBtn').textContent = 'Signing in...';
+        
+        const data = await api('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ username: un, password: pw, auth_type: at })
+        });
+        
+        el('loginBtn').disabled = false;
+        el('loginBtn').innerHTML = '<i data-lucide="log-in" style="width:18px;height:18px"></i> Sign In';
+        
+        if (data && data.success) {
+            SESSION = { id: data.session_id, username: data.username, role: data.role };
+            showApp();
+        } else {
+            el('loginError').textContent = data?.error || 'Login failed';
+            el('loginError').classList.remove('hidden');
+        }
+        lucide.createIcons();
+    };
+
+    el('loginPass').onkeydown = e => { if (e.key === 'Enter') el('loginBtn').click(); };
+
+    el('logoutBtn').onclick = async () => {
+        await api('/auth/logout', { method: 'POST' });
+        showLogin();
+    };
+
+    // ============ TABS ============
+    qsa('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            qsa('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            qsa('.tab-content').forEach(c => c.classList.remove('active'));
+            const tab = el('tab-' + btn.dataset.tab);
+            if (tab) tab.classList.add('active');
+            
+            if (btn.dataset.tab === 'dashboard') loadDashboard();
+            if (btn.dataset.tab === 'history') loadHistory();
+            if (btn.dataset.tab === 'logs') loadLogs();
+            if (btn.dataset.tab === 'admin') loadAdmin();
+            if (btn.dataset.tab === 'cve') searchCVE();
+        };
+    });
+
+    // ============ INIT ============
+    async function initApp() {
+        loadScanLevels();
+        loadRiskModules();
+        loadStats();
+        loadModuleStatus();
+        updateScanUI();
+        startActiveScansPolling();
+        lucide.createIcons();
+    }
+
+    function loadScanLevels() {
+        const levels = [
+            { id: 'quick', name: 'Quick', desc: 'Top 100 ports, ~2min', icon: 'zap' },
+            { id: 'normal', name: 'Normal', desc: 'Top 1000 + versions, ~5min', icon: 'scan-line' },
+            { id: 'advanced', name: 'Advanced', desc: 'All TCP + OS, ~15min', icon: 'search' },
+            { id: 'full', name: 'Full', desc: 'TCP+UDP complete, ~30min', icon: 'shield' },
+            { id: 'stealth', name: 'Stealth', desc: 'Evasive SYN, ~10min', icon: 'eye-off' },
+            { id: 'vulnerability', name: 'Vuln Scan', desc: 'CVE detection, ~45min', icon: 'bug', danger: true },
+            { id: 'exploit', name: 'Exploit', desc: 'Exploit testing', icon: 'flame', danger: true },
+            { id: 'brute', name: 'Brute Force', desc: 'Auth brute force, ~1h', icon: 'key', danger: true }
+        ];
+        
+        el('scanLevels').innerHTML = levels.map(l => `
+            <div class="level-card ${l.danger ? 'danger' : ''} ${l.id === selectedLevel ? 'active' : ''}" data-level="${l.id}" onclick="selectLevel('${l.id}','${l.desc}')">
+                <i data-lucide="${l.icon}" style="width:20px;height:20px;margin:0 auto 6px;display:block;color:${l.danger ? 'var(--accent-red)' : 'var(--accent-cyan)'}"></i>
+                <div class="text-sm font-semibold">${l.name}</div>
+            </div>`).join('');
+        lucide.createIcons();
+    }
+
+    function selectLevel(id, desc) {
+        selectedLevel = id;
+        qsa('.level-card').forEach(c => { c.classList.remove('active'); });
+        qs(`[data-level="${id}"]`)?.classList.add('active');
+        el('levelDesc').textContent = desc;
+    }
+
+    // ============ MODULES RISQUE ============
+    async function loadRiskModules() {
+        const d = await api('/risk/modules');
+        if (!d) return;
+        const modules = d.modules || [];
+        const list = el('riskModulesList');
+        list.innerHTML = modules.map(m => {
+            const isSelected = selectedRiskModules[m.id];
+            const hasOptions = Object.keys(m.options || {}).length > 0;
+            const installBadge = !m.installed
+                ? `<span class="install-badge badge badge-critical" onclick="event.stopPropagation();showInstallModal('${m.id}')" title="Cliquer pour installer">⚠ Non installe</span>`
+                : (hasOptions
+                    ? `<span class="install-badge badge badge-info" onclick="event.stopPropagation();configureModule('${m.id}')" title="Configurer les options">⚙ Options</span>`
+                    : `<span class="install-badge badge" style="background:var(--accent-green);color:#fff">✓ Pret</span>`);
+            return `<div class="module-card ${isSelected ? 'selected' : ''} ${!m.installed ? 'disabled' : ''}"
+                 onclick="${m.installed ? `toggleRiskModule('${m.id}')` : `showInstallModal('${m.id}')`}"
+                 title="${m.desc}">
+                <div class="flex items-center gap-2 w-full">
+                    <i data-lucide="${getModuleIcon(m.id)}" style="width:16px;height:16px;color:${m.installed ? 'var(--accent-cyan)' : 'var(--accent-red)'}"></i>
+                    <span class="font-bold text-${m.installed ? 'cyan' : 'red'}" style="font-size:13px">${m.name}</span>
+                </div>
+                <div class="text-xs text-muted mt-1" style="line-height:1.3">${m.desc.substring(0,55)}</div>
+                ${m.version ? `<div class="text-xs" style="color:var(--text-muted);opacity:0.7;margin-top:2px">v${m.version}</div>` : ''}
+                ${installBadge}
+                ${isSelected ? '<div class="text-xs text-cyan mt-1" style="font-weight:600">✓ Selectionne</div>' : ''}
+            </div>`;
+        }).join('');
+        lucide.createIcons();
+    }
+
+    function getModuleIcon(moduleId) {
+        const icons = {
+            'nikto':'bug','sqlmap':'database','dirb':'folder-search',
+            'hydra':'key','crackmapexec':'network','whatweb':'globe',
+            'impacket':'server','hashcat':'lock'
+        };
+        return icons[moduleId] || 'package';
+    }
+
+    function toggleRiskModule(moduleId) {
+        if (!modulesUnlocked) { notify("Deverrouillez d'abord les modules a risque", 'warning'); return; }
+        selectedRiskModules[moduleId] = !selectedRiskModules[moduleId];
+        if (!selectedRiskModules[moduleId] && moduleOptions[moduleId]) delete moduleOptions[moduleId];
+        loadRiskModules();
+    }
+
+    async function configureModule(moduleId) {
+        if (!moduleOptions[moduleId]) moduleOptions[moduleId] = {};
+        const d = await api(`/risk/options/${moduleId}`);
+        if (!d || !d.options) return;
+        const modInfo = await api('/risk/modules');
+        const mod = (modInfo && modInfo.modules || []).find(m => m.id === moduleId) || {};
+        const options = d.options;
+        let html = `<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;padding:8px;background:var(--bg-secondary);border-radius:6px">
+            <strong style="color:var(--accent-cyan)">${mod.name || moduleId}</strong> &mdash; ${mod.desc || ''}
+        </div><div class="flex flex-col gap-3">`;
+        for (const [optName, optConfig] of Object.entries(options)) {
+            const currentVal = moduleOptions[moduleId][optName] !== undefined ? moduleOptions[moduleId][optName] : optConfig.default;
+            const label = optConfig.label || optName;
+            const desc  = optConfig.desc  || '';
+            html += `<div class="mb-2" style="border:1px solid var(--border);border-radius:6px;padding:10px">
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:3px;color:var(--text-primary)">${label}</label>
+                ${desc ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;line-height:1.4">${desc}</div>` : ''}`;
+            if (optConfig.type === 'bool') {
+                html += `<label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <input type="checkbox" id="opt_${moduleId}_${optName}" ${currentVal ? 'checked' : ''}
+                        onchange="updateModuleOption('${moduleId}','${optName}',this.checked);this.nextElementSibling.textContent=this.checked?'Active':'Desactive'"
+                        style="width:16px;height:16px">
+                    <span style="font-size:12px">${currentVal ? 'Active' : 'Desactive'}</span>
+                </label>`;
+            } else if (optConfig.type === 'select') {
+                html += `<select id="opt_${moduleId}_${optName}" class="w-full"
+                    onchange="updateModuleOption('${moduleId}','${optName}',this.value)"
+                    style="font-size:12px;padding:6px">`;
+                (optConfig.options || []).forEach(opt => {
+                    const val = typeof opt === 'object' ? opt.value : opt;
+                    const lbl = typeof opt === 'object' ? opt.label : opt;
+                    html += `<option value="${val}" ${String(currentVal)===String(val)?'selected':''}>${lbl}</option>`;
+                });
+                html += '</select>';
+            } else if (optConfig.type === 'int') {
+                const min = optConfig.min !== undefined ? `min="${optConfig.min}"` : '';
+                const max = optConfig.max !== undefined ? `max="${optConfig.max}"` : '';
+                html += `<input type="number" id="opt_${moduleId}_${optName}" class="w-full"
+                    value="${currentVal !== undefined && currentVal !== '' ? currentVal : ''}"
+                    placeholder="${optConfig.optional ? 'Optionnel' : ''}"
+                    ${min} ${max}
+                    onchange="updateModuleOption('${moduleId}','${optName}',this.value===''?null:parseInt(this.value))"
+                    style="font-size:12px;padding:6px">`;
+            } else {
+                html += `<input type="text" id="opt_${moduleId}_${optName}" class="w-full mono"
+                    value="${currentVal || ''}"
+                    placeholder="${optConfig.optional ? 'Optionnel' : ''}"
+                    onchange="updateModuleOption('${moduleId}','${optName}',this.value)"
+                    style="font-size:11px;padding:6px">`;
+            }
+            html += `</div>`;
+        }
+        html += '</div>';
+        el('moduleOptionsTitle').innerHTML = `⚙ ${mod.name || moduleId} &mdash; Configuration`;
+        el('moduleOptionsContent').innerHTML = html;
+        el('moduleOptionsModal').classList.remove('hidden');
+    }
+
+    function updateModuleOption(moduleId, optName, value) {
+        if (!moduleOptions[moduleId]) moduleOptions[moduleId] = {};
+        moduleOptions[moduleId][optName] = value;
+    }
+
+    function saveModuleOptions() { closeModuleOptions(); notify('Options sauvegardees', 'success'); }
+    function closeModuleOptions() { el('moduleOptionsModal').classList.add('hidden'); }
+
+    function closeInstallModal() {
+        el('installModuleModal').classList.add('hidden');
+        pendingModule = null;
+    }
+
+    function closeUnlockModal() {
+        el('unlockModal').classList.add('hidden');
+        el('unlockPw').value = '';
+    }
+
+    function closeModuleInfo() {
+        el('moduleInfoPopup').classList.add('hidden');
+    }
+
+    async function installModule() {
+        if (!pendingModule) return;
+        
+        closeInstallModal();
+        notify(`Installation de ${pendingModule}...`, 'info');
+        
+        const d = await api('/risk/install', {
+            method: 'POST',
+            body: JSON.stringify({ module_id: pendingModule })
+        });
+        
+        if (d && d.success) {
+            notify(`Module ${pendingModule} installé avec succès`, 'success');
+            selectedRiskModules[pendingModule] = true;
+        } else {
+            notify(`Échec installation: ${d?.error || 'Erreur inconnue'}`, 'error');
+        }
+        
+        pendingModule = null;
+        loadRiskModules();
+    }
+
+    // ============ TYPE DE SCAN ============
+    function setScanType(type) {
+        currentScanType = type;
+        
+        ['nmap', 'risk', 'combined'].forEach(t => {
+            const btn = el(`scanType${t.charAt(0).toUpperCase() + t.slice(1)}`);
+            if (btn) {
+                if (t === type) {
+                    btn.className = 'btn btn-primary btn-sm active';
+                } else {
+                    btn.className = 'btn btn-ghost btn-sm';
+                }
+            }
+        });
+        
+        updateScanUI();
+    }
+
+    function updateScanUI() {
+        const nmapCard = el('nmapOptionsCard');
+        const riskCard = el('riskModulesCard');
+        
+        if (currentScanType === 'nmap') {
+            nmapCard.style.display = 'block';
+            riskCard.style.display = 'block';
+            qsa('#riskModulesList .module-card').forEach(c => {
+                if (!c.classList.contains('selected')) {
+                    c.style.opacity = '0.4';
+                }
+            });
+        } else if (currentScanType === 'risk') {
+            nmapCard.style.display = 'none';
+            riskCard.style.display = 'block';
+            qsa('#riskModulesList .module-card').forEach(c => {
+                c.style.opacity = '1';
+            });
+        } else {
+            nmapCard.style.display = 'block';
+            riskCard.style.display = 'block';
+            qsa('#riskModulesList .module-card').forEach(c => {
+                c.style.opacity = '1';
+            });
+        }
+    }
+
+    // ============ MODULE LOCK ============
+    async function loadModuleStatus() {
+        const d = await api('/modules/status');
+        if (d) {
+            modulesUnlocked = d.unlocked;
+            updateLockUI();
+        }
+    }
+
+    function updateLockUI() {
+        if (modulesUnlocked) {
+            el('lockStatus').className = 'badge badge-low';
+            el('lockStatus').textContent = 'UNLOCKED';
+            el('lockOverlay').classList.add('hidden');
+        } else {
+            el('lockStatus').className = 'badge badge-critical';
+            el('lockStatus').textContent = 'LOCKED';
+            el('lockOverlay').classList.remove('hidden');
+        }
+        loadRiskModules();
+    }
+
+    el('unlockBtn').onclick = () => el('unlockModal').classList.remove('hidden');
+
+    async function submitUnlock() {
+        const pw = el('unlockPw').value;
+        const d = await api('/modules/unlock', {
+            method: 'POST',
+            body: JSON.stringify({ password: pw })
+        });
+        
+        if (d && d.success) {
+            modulesUnlocked = true;
+            updateLockUI();
+            closeUnlockModal();
+            notify('Modules déverrouillés pour 60 minutes', 'success');
+        } else {
+            notify('Mot de passe incorrect', 'error');
+        }
+    }
+
+    // ============ SCAN MODE ============
+    el('modeReal').onclick = () => {
+        realScan = true;
+        el('modeReal').className = 'btn btn-primary btn-sm';
+        el('modeSim').className = 'btn btn-ghost btn-sm';
+    };
+    
+    el('modeSim').onclick = () => {
+        realScan = false;
+        el('modeSim').className = 'btn btn-primary btn-sm';
+        el('modeReal').className = 'btn btn-ghost btn-sm';
+    };
+
+    // ============ NMAP OPTIONS ============
+    qsa('.check-option').forEach(c => {
+        const cb = c.querySelector('input[type="checkbox"]');
+        if (cb) {
+            cb.onchange = () => c.classList.toggle('active', cb.checked);
+            if (cb.checked) c.classList.add('active');
+        }
+    });
+
+    function getNmapOptions() {
+        const opts = {};
+        qsa('[data-opt]').forEach(cb => { if (cb.checked) opts[cb.dataset.opt] = true; });
+        if (el('portRange').value) opts.port_range = el('portRange').value;
+        if (el('timing').value) opts.timing = parseInt(el('timing').value);
+        return opts;
+    }
+
+    // ============ START SCAN ============
+    el('startScanBtn').onclick = async () => {
+        const target = el('targetInput').value.trim();
+        if (!target) { notify('Entrez une cible', 'warning'); return; }
+
+        el('startScanBtn').disabled = true;
+
+        let endpoint = '';
+        let data = { target };
+
+        if (currentScanType === 'nmap') {
+            endpoint = '/scan/nmap';
+            data.scan_level = selectedLevel;
+            data.nmap_options = getNmapOptions();
+        }
+        else {
+            const selected = Object.keys(selectedRiskModules).filter(k => selectedRiskModules[k]);
+            if (currentScanType === 'risk' && selected.length === 0) {
+                notify('Sélectionnez au moins un module', 'warning');
+                el('startScanBtn').disabled = false;
+                return;
+            }
+
+            if (selected.length > 0) {
+                notify('Vérification des modules...', 'info');
+                const chk = await api('/risk/check', {
+                    method: 'POST',
+                    body: JSON.stringify({ modules: selected })
+                });
+                if (chk && !chk.all_installed) {
+                    const missing = (chk.missing || []).join(', ');
+                    notify(`Modules non installés : ${missing}. Installer d'abord via le gestionnaire.`, 'error');
+                    el('startScanBtn').disabled = false;
+                    return;
+                }
+            }
+
+            if (currentScanType === 'risk') {
+                endpoint = '/scan/risk';
+                data.modules = selected;
+                data.module_options = moduleOptions;
+            } else {
+                endpoint = '/scan/combined';
+                data.scan_level = selectedLevel;
+                data.nmap_options = getNmapOptions();
+                data.modules = selected;
+                data.module_options = moduleOptions;
+            }
+        }
+
+        const d = await api(endpoint, { method: 'POST', body: JSON.stringify(data) });
+        if (d && d.job_id) {
+            currentScan = d.job_id;
+            notify(`Scan ${d.type} démarré : ${target}`, 'success');
+            el('scanProgress').classList.remove('hidden');
+            pollScan();
+            updateActiveScans();
+        } else {
+            el('startScanBtn').disabled = false;
+        }
+    };
+
+    function pollScan() {
+        if (scanInterval) clearInterval(scanInterval);
+        scanInterval = setInterval(async () => {
+            if (!currentScan) {
+                clearInterval(scanInterval);
+                return;
+            }
+            
+            const d = await api(`/scan/${currentScan}/status`);
+            if (!d) {
+                clearInterval(scanInterval);
+                return;
+            }
+            
+            el('pBar').style.width = d.progress + '%';
+            el('pPct').textContent = d.progress + '%';
+            el('scanStat').textContent = `Status: ${d.status} | Target: ${d.target || ''}`;
+            
+            if (d.status === 'completed' || d.status === 'failed' || d.status === 'stopped') {
+                clearInterval(scanInterval);
+                el('startScanBtn').disabled = false;
+                
+                if (d.status === 'completed' && d.results) {
+                    notify('Scan terminé!', 'success');
+                    showResults(d.results);
+                    loadStats();
+                } else {
+                    notify(`Scan ${d.status}`, 'warning');
+                }
+                
+                setTimeout(() => el('scanProgress').classList.add('hidden'), 2000);
+                updateActiveScans();
+            }
+        }, 2000);
+    }
+
+    el('stopBtn').onclick = async () => {
+        if (currentScan) {
+            await api(`/scan/${currentScan}/stop`, { method: 'POST' });
+            notify('Arrêt demandé', 'warning');
+        }
+    };
+
+    el('killBtn').onclick = async () => {
+        if (confirm('Kill all Nmap processes?')) {
+            await api('/admin/kill-nmap', { method: 'POST' });
+            notify('Kill sent', 'warning');
+            clearInterval(scanInterval);
+            el('scanProgress').classList.add('hidden');
+            el('startScanBtn').disabled = false;
+        }
+    };
+
+    el('killAllBtn').onclick = async () => {
+        if (confirm('EMERGENCY: Kill ALL scan processes?')) {
+            const d = await api('/admin/kill-all', { method: 'POST' });
+            if (d) notify(`${d.killed} processes killed`, 'warning');
+        }
+    };
+
+    // ============ ACTIVE SCANS ============
+    function startActiveScansPolling() {
+        if (activeScansInterval) clearInterval(activeScansInterval);
+        activeScansInterval = setInterval(updateActiveScans, 3000);
+    }
+
+    async function updateActiveScans() {
+        const d = await api('/scan/active');
+        if (!d) return;
+        
+        const list = el('activeScansList');
+        const count = el('activeScansCount');
+        
+        count.textContent = d.active_scans.length;
+        
+        if (d.active_scans.length === 0) {
+            list.innerHTML = '<div class="text-muted text-sm p-2">Aucun scan actif</div>';
+            return;
+        }
+        
+        list.innerHTML = d.active_scans.map(s => `
+            <div class="scan-item">
+                <div>
+                    <span class="badge badge-${s.type === 'nmap' ? 'info' : s.type === 'risk' ? 'critical' : 'medium'} text-xs">
+                        ${s.type}
+                    </span>
+                    <span class="mono text-xs text-cyan ml-2">${s.target}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-xs">${s.progress}%</div>
+                    <div class="progress" style="width:60px">
+                        <div class="progress-bar" style="width:${s.progress}%"></div>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" onclick="stopScan('${s.job_id}')">
+                        <i data-lucide="square" style="width:12px;height:12px"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        
+        lucide.createIcons();
+    }
+
+    async function stopScan(jobId) {
+        const d = await api(`/scan/${jobId}/stop`, { method: 'POST' });
+        if (d && d.success) {
+            notify('Scan arrêté', 'warning');
+            updateActiveScans();
+        }
+    }
+
+    // ============ RESULTS ============
+    function showResults(r) {
+        qs('[data-tab="results"]').click();
+
+        const isRisk = (r.type === 'risk') || (r.module_results !== undefined);
+        const isCombined = (r.type === 'combined') || (r.module_results !== undefined && r.details !== undefined);
+
+        const sevBadge = s => `<span class="badge badge-${s || 'low'}">${(s || 'low').toUpperCase()}</span>`;
+        const sevColor = s => ({'critical':'var(--accent-red)','high':'var(--accent-orange)','medium':'var(--accent-yellow)','low':'var(--accent-green)'}[s] || 'var(--text-muted)');
+
+        let totalFindings = 0, critCount = 0, highCount = 0;
+        const allFindings = r.findings || [];
+        allFindings.forEach(f => {
+            totalFindings++;
+            if (f.severity === 'critical') critCount++;
+            if (f.severity === 'high') highCount++;
+        });
+        const globalSev = critCount > 0 ? 'critical' : highCount > 0 ? 'high' :
+                          allFindings.some(f=>f.severity==='medium') ? 'medium' :
+                          allFindings.length > 0 ? 'low' : 'low';
+
+        const openPorts = r.open_ports || (r.details?.ports?.length) || 0;
+        const services  = r.services  || 0;
+        const riskScore = r.risk_score || (critCount*10 + highCount*5 + allFindings.length) || 0;
+        const riskLevel = r.vulnerabilities || globalSev;
+        const modCount  = (r.module_results || []).length;
+
+        let h = `<div class="grid-4 mb-4">`;
+        if (isRisk && !isCombined) {
+            h += `
+            <div class="card" style="text-align:center">
+                <div class="text-3xl font-bold text-cyan">${modCount}</div>
+                <div class="text-xs text-muted">Modules exécutés</div>
+            </div>
+            <div class="card" style="text-align:center">
+                <div class="text-3xl font-bold" style="color:var(--accent-red)">${critCount}</div>
+                <div class="text-xs text-muted">Critical</div>
+            </div>
+            <div class="card" style="text-align:center">
+                <div class="text-3xl font-bold" style="color:var(--accent-orange)">${highCount}</div>
+                <div class="text-xs text-muted">High</div>
+            </div>
+            <div class="card" style="text-align:center">
+                <div class="text-3xl font-bold" style="color:${sevColor(riskLevel)}">${totalFindings}</div>
+                <div class="text-xs text-muted">Findings total</div>
+            </div>`;
+        } else {
+            h += `
+            <div class="card" style="text-align:center">
+                <div class="text-3xl font-bold text-cyan">${openPorts}</div>
+                <div class="text-xs text-muted">Open Ports</div>
+            </div>
+            <div class="card" style="text-align:center">
+                <div class="text-3xl font-bold text-blue">${services}</div>
+                <div class="text-xs text-muted">Services</div>
+            </div>
+            <div class="card" style="text-align:center">
+                <div class="text-3xl font-bold" style="color:${sevColor(riskLevel)}">${riskScore}</div>
+                <div class="text-xs text-muted">Risk Score</div>
+            </div>
+            <div class="card" style="text-align:center">
+                ${sevBadge(riskLevel)}
+                <div class="text-xs text-muted mt-2">Risk Level</div>
+            </div>`;
+        }
+        h += `</div>`;
+
+        const det = r.details || {};
+        h += `<div class="card mb-4"><h3 class="font-semibold mb-2">📋 Scan Info</h3>
+            <div class="grid-3 text-sm">
+                <div><span class="text-muted">Target:</span> <span class="mono text-cyan">${r.target || '—'}</span></div>
+                <div><span class="text-muted">Type:</span> <span class="badge badge-info">${r.type || (isRisk ? 'risk' : 'nmap')}</span></div>
+                <div><span class="text-muted">Duration:</span> ${r.duration || 'N/A'}</div>
+                <div><span class="text-muted">Time:</span> ${(r.timestamp || '').substring(0, 19)}</div>
+                ${r.scan_level ? `<div><span class="text-muted">Level:</span> ${r.scan_level}</div>` : ''}
+                ${det.os?.name ? `<div><span class="text-muted">OS:</span> ${det.os.name} (${det.os.accuracy || '?'}%)</div>` : ''}
+                ${modCount ? `<div><span class="text-muted">Modules:</span> ${(r.module_results||[]).map(m=>m.module).join(', ')}</div>` : ''}
+            </div>
+            ${det.nmap_command ? `<div class="mt-2 mono text-xs" style="background:var(--bg-primary);padding:8px;border-radius:6px;color:var(--accent-green)">${det.nmap_command}</div>` : ''}
+        </div>`;
+
+        if (det.ports?.length) {
+            h += `<div class="card mb-4"><h3 class="font-semibold mb-2">🔌 Open Ports (${det.ports.length})</h3>
+                <table><tr><th>Port</th><th>Proto</th><th>Service</th><th>Product</th><th>Version</th><th>State</th></tr>
+                ${det.ports.map(p => `<tr>
+                    <td class="mono text-cyan">${p.port}</td><td>${p.protocol}</td>
+                    <td class="font-bold">${p.service}</td>
+                    <td>${p.product || ''}</td><td class="text-muted">${p.version || ''}</td>
+                    <td><span class="badge badge-low">open</span></td></tr>`).join('')}
+                </table></div>`;
+        }
+
+        if (det.vulns?.length) {
+            h += `<div class="card mb-4"><h3 class="font-semibold mb-2 text-red">⚠ Vulnerabilities Nmap (${det.vulns.length})</h3>
+                <table><tr><th>CVE / Tool</th><th>Severity</th><th>Service</th><th>Description</th></tr>
+                ${det.vulns.map(v => {
+                    const link = v.cve?.startsWith('CVE-') ?
+                        `<a href="https://nvd.nist.gov/vuln/detail/${v.cve}" target="_blank" style="color:var(--accent-cyan)">${v.cve} ↗</a>` :
+                        v.cve || v.tool || '';
+                    return `<tr>
+                        <td class="mono">${link}</td>
+                        <td>${sevBadge(v.severity)}</td>
+                        <td>${v.service || ''}</td>
+                        <td class="text-muted text-xs">${(v.description || '').substring(0, 150)}</td></tr>`;
+                }).join('')}</table></div>`;
+        }
+
+        const moduleResults = r.module_results || [];
+        if (moduleResults.length) {
+            h += `<div class="card mb-4"><h3 class="font-semibold mb-2">🔧 Résultats des modules de sécurité</h3>`;
+            for (const t of moduleResults) {
+                const statusColor = {
+                    'completed':    'var(--accent-green)',
+                    'timeout':      'var(--accent-orange)',
+                    'error':        'var(--accent-red)',
+                    'not_installed':'var(--accent-yellow)'
+                }[t.status] || 'var(--text-muted)';
+                const statusLabel = {
+                    'completed':    '✓ Terminé',
+                    'timeout':      '⏱ Timeout',
+                    'error':        '✗ Erreur',
+                    'not_installed':'⚠ Non installé'
+                }[t.status] || t.status;
+                const findings = t.findings || [];
+                const fCrit = findings.filter(f=>f.severity==='critical').length;
+                const fHigh = findings.filter(f=>f.severity==='high').length;
+                const fMed  = findings.filter(f=>f.severity==='medium').length;
+
+                h += `<div class="mb-3 p-3" style="background:var(--bg-primary);border-radius:8px;border:1px solid var(--border)">
+                    <div class="flex items-center gap-2 mb-2" style="flex-wrap:wrap">
+                        <b class="text-cyan" style="font-size:14px">${t.module || ''}</b>
+                        <span class="badge text-xs" style="background:${statusColor};color:#fff">${statusLabel}</span>
+                        ${t.duration ? `<span class="text-xs text-muted">${t.duration}s</span>` : ''}
+                        ${fCrit ? `<span class="badge badge-critical">${fCrit} critical</span>` : ''}
+                        ${fHigh ? `<span class="badge badge-high">${fHigh} high</span>` : ''}
+                        ${fMed  ? `<span class="badge badge-medium">${fMed} medium</span>` : ''}
+                        ${findings.length && !fCrit && !fHigh && !fMed ? `<span class="badge badge-low">${findings.length} info</span>` : ''}
+                    </div>
+                    ${t.error ? `<div class="text-xs" style="color:var(--accent-red);margin-bottom:6px">⚠ ${t.error}</div>` : ''}
+                    ${findings.length ? `<div class="mb-2">
+                        <table style="font-size:11px"><tr><th>Sévérité</th><th>Description</th><th>Recommandation</th></tr>
+                        ${findings.map(f => `<tr>
+                            <td>${sevBadge(f.severity)}</td>
+                            <td style="max-width:350px;word-break:break-word">${f.description || ''}</td>
+                            <td class="text-muted" style="max-width:200px;font-size:10px">${f.recommendation || ''}</td>
+                        </tr>`).join('')}</table>
+                    </div>` : (!t.error ? '<div class="text-xs text-muted">Aucun finding détecté</div>' : '')}
+                    ${t.output ? `<details style="margin-top:6px"><summary class="text-xs text-muted" style="cursor:pointer;user-select:none">▶ Sortie brute</summary>
+                        <pre class="terminal mt-1" style="max-height:200px;overflow-y:auto;font-size:0.6rem;white-space:pre-wrap">${(t.output || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+                    </details>` : ''}
+                </div>`;
+            }
+            h += `</div>`;
+        }
+
+        if (allFindings.length && moduleResults.length > 1) {
+            h += `<div class="card mb-4"><h3 class="font-semibold mb-2">📊 Findings consolidés (${allFindings.length})</h3>
+                <table><tr><th>Module</th><th>Sévérité</th><th>Description</th><th>Recommandation</th></tr>
+                ${allFindings.sort((a,b)=>{
+                    const o={'critical':0,'high':1,'medium':2,'low':3,'info':4};
+                    return (o[a.severity]||5)-(o[b.severity]||5);
+                }).map(f => `<tr>
+                    <td class="mono text-xs">${f.tool || ''}</td>
+                    <td>${sevBadge(f.severity)}</td>
+                    <td class="text-xs">${(f.description||'').substring(0,180)}</td>
+                    <td class="text-muted text-xs">${(f.recommendation||'').substring(0,120)}</td>
+                </tr>`).join('')}</table>
+            </div>`;
+        }
+
+        h += `<div class="flex gap-2 mt-4">
+            <button class="btn btn-primary" onclick="downloadPDF()">
+                <i data-lucide="file-text" style="width:16px;height:16px"></i> Télécharger rapport PDF
+            </button>
+        </div>`;
+
+        el('resultsContent').innerHTML = h;
+        lucide.createIcons();
+    }
+
+    async function downloadPDF() {
+        if (!lastResults) {
+            notify('Aucun résultat à exporter', 'warning');
+            return;
+        }
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (SESSION.id) headers['X-Session-Id'] = SESSION.id;
+
+        notify('Génération du rapport PDF...', 'info');
+
+        try {
+            const r = await fetch(API + '/report/pdf', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ results: lastResults })
+            });
+
+            if (r.ok) {
+                const b = await r.blob();
+                const u = URL.createObjectURL(b);
+                const fn = `LABSEC_${(lastResults.target || 'scan').replace(/[^a-zA-Z0-9._-]/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
+                const a = document.createElement('a');
+                a.href = u;
+                a.download = fn;
+                a.click();
+                URL.revokeObjectURL(u);
+                notify('PDF téléchargé : ' + fn, 'success');
+            } else {
+                const e = await r.json().catch(() => ({}));
+                notify('Erreur PDF : ' + (e.error || r.status), 'error');
+            }
+        } catch (e) {
+            notify('Erreur PDF : ' + e, 'error');
+        }
+    }
+
+    const origShowResults = showResults;
+    showResults = function(r) {
+        lastResults = r;
+        origShowResults(r);
+    };
+
+    // ============ QUICK TOOLS ============
+    function doQuickTool(type) {
+        const target = el('targetInput').value.trim();
+        if (!target) {
+            notify('Enter a target first', 'warning');
+            return;
+        }
+        
+        if (type === 'ping') {
+            api('/scan/quick', { method: 'POST', body: JSON.stringify({ target }) })
+                .then(d => { if (d) notify(d.reachable ? `${target} is reachable` : `${target} unreachable`, d.reachable ? 'success' : 'warning'); });
+        }
+        if (type === 'dns') {
+            el('dnsInput').value = target;
+            qs('[data-tab="tools"]').click();
+            doDNS();
+        }
+        if (type === 'ssl') {
+            el('sslInput').value = target;
+            qs('[data-tab="tools"]').click();
+            doSSL();
+        }
+        if (type === 'whois') {
+            el('whoisInput').value = target;
+            qs('[data-tab="tools"]').click();
+            doWhois();
+        }
+        if (type === 'trace') {
+            el('traceInput').value = target;
+            qs('[data-tab="tools"]').click();
+            doTrace();
+        }
+    }
+
+    async function doWhois() {
+        const t = el('whoisInput').value.trim();
+        if (!t) return;
+        
+        el('whoisResult').innerHTML = '<div class="pulse">Recherche WHOIS (sources multiples)...</div>';
+        const d = await api('/whois', { method: 'POST', body: JSON.stringify({ target: t }) });
+        
+        if (!d) {
+            el('whoisResult').innerHTML = 'Erreur';
+            return;
+        }
+        
+        if (d.error && !d.sources?.length) {
+            el('whoisResult').innerHTML = `<div class="text-red">${d.error}</div>`;
+            return;
+        }
+        
+        const reg = d.registrant || {};
+        const adm = d.admin || {};
+        const tch = d.tech || {};
+        const geo = d.geo || {};
+        
+        const row = (k, v) => v ? `<div class="flex gap-2 mb-1" style="font-size:0.78rem"><span class="text-muted" style="min-width:170px;flex-shrink:0">${k}</span><span class="mono">${v}</span></div>` : '';
+        
+        let html = `<div class="flex gap-2 mb-3 text-xs items-center flex-wrap">
+            <span class="text-muted">Sources :</span> ${(d.sources || []).map(s => `<span class="badge badge-info">${s}</span>`).join(' ')}
+        </div>`;
+        
+        html += `<div class="card mb-2 p-3"><h4 class="text-xs font-bold mb-2 text-cyan">📋 Informations du domaine</h4>
+            ${row('Domaine :', d.domain_name || d.domain)}
+            ${row('IP :', geo.ip || '')}
+            ${row('Registrar :', d.registrar)}
+            ${row('Serveur WHOIS :', d.whois_server)}</div>`;
+        
+        html += `<div class="card mb-2 p-3"><h4 class="text-xs font-bold mb-2 text-cyan">📅 Dates importantes</h4>
+            ${row('Date de creation :', d.creation_date)}
+            ${row('Derniere mise a jour :', d.updated_date || d.last_changed)}
+            ${row('Date d\'expiration :', d.expiration_date)}
+            ${row('Age du domaine :', d.domain_age ? `<span class="text-cyan font-bold">${d.domain_age}</span>` : '')}
+            ${row('Jours avant expiration :', d.days_until_expiration != null ? 
+                (d.days_until_expiration < 0 ? '<span class="text-red font-bold">⚠ EXPIRE</span>' : `<span class="text-green font-bold">${d.days_until_expiration} jours</span>`) : '')}</div>`;
+        
+        if (d.name_servers?.length) {
+            html += `<div class="card mb-2 p-3"><h4 class="text-xs font-bold mb-2 text-cyan">🖥️ Serveurs de noms</h4>
+                ${d.name_servers.map((ns, i) => `<div class="flex gap-2 mb-1" style="font-size:0.78rem"><span class="text-muted" style="min-width:40px">NS ${i + 1}</span><span class="mono text-cyan">${ns}</span></div>`).join('')}</div>`;
+        }
+        
+        if (geo.isp || geo.asn) {
+            html += `<div class="card mb-2 p-3"><h4 class="text-xs font-bold mb-2 text-cyan">🌐 Reseau & Geolocalisation</h4>
+                ${row('ISP :', geo.isp)}
+                ${row('ASN :', geo.asn)}
+                ${row('Localisation :', geo.city && geo.region ? `${geo.city}, ${geo.region}, ${geo.country}` : geo.country || '')}
+                ${row('Timezone :', geo.timezone)}</div>`;
+        }
+        
+        html += `<details class="mt-2"><summary class="text-xs text-cyan" style="cursor:pointer">📄 Donnees WHOIS brutes</summary>
+            <pre class="terminal mt-2" style="max-height:600px;overflow-y:auto;white-space:pre-wrap;font-size:0.6rem">${(d.raw || 'N/A').replace(/</g, '&lt;')}</pre></details>`;
+        
+        el('whoisResult').innerHTML = html;
+    }
+
+    async function doDNS() {
+        const t = el('dnsInput').value.trim();
+        if (!t) return;
+        
+        el('dnsResult').innerHTML = '<div class="pulse">Resolving...</div>';
+        const d = await api('/dns', { method: 'POST', body: JSON.stringify({ target: t }) });
+        
+        if (!d) {
+            el('dnsResult').innerHTML = 'Error';
+            return;
+        }
+        
+        let h = '';
+        if (d.resolved_ips) h += `<div class="mb-2"><b>IPs:</b> ${d.resolved_ips.join(', ')}</div>`;
+        if (d.reverse_dns) h += `<div class="mb-2"><b>Reverse:</b> ${d.reverse_dns.hostname}</div>`;
+        
+        for (const [rt, vals] of Object.entries(d.records || {})) {
+            h += `<div class="mb-2"><b>${rt}:</b> <span class="mono text-xs">${vals.join(', ')}</span></div>`;
+        }
+        
+        el('dnsResult').innerHTML = h || 'No records found';
+    }
+
+    async function doSSL() {
+        const t = el('sslInput').value.trim();
+        if (!t) return;
+        
+        el('sslResult').innerHTML = '<div class="pulse">Testing SSL/TLS... (this may take 30s)</div>';
+        const d = await api('/ssl-test', { method: 'POST', body: JSON.stringify({ target: t }) });
+        
+        if (!d) {
+            el('sslResult').innerHTML = 'Error';
+            return;
+        }
+        
+        if (d.error && !d.grade) {
+            el('sslResult').innerHTML = `<div class="text-red">${d.error}</div>`;
+            return;
+        }
+        
+        const gc = {
+            'A+': 'badge-low', 'A': 'badge-low', 'B': 'badge-medium',
+            'C': 'badge-high', 'D': 'badge-critical', 'F': 'badge-critical'
+        };
+        
+        const cert = d.certificate || {};
+        
+        el('sslResult').innerHTML = `
+            <div class="mb-3 flex items-center gap-3">
+                <span class="badge ${gc[d.grade] || 'badge-info'}" style="font-size:1.5rem;padding:8px 20px">${d.grade}</span>
+                <div><div class="font-bold">Score: ${d.score}/100</div><div class="text-xs text-muted">${d.summary?.total_vulns || 0} issues found</div></div>
+            </div>
+            <div class="card mb-3 p-3"><h4 class="text-sm font-bold mb-2">Certificate</h4>
+                ${cert.subject ? `<div class="text-xs mb-1"><b>Subject:</b> ${cert.subject.commonName || cert.subject.organizationName || JSON.stringify(cert.subject)}</div>` : ''}
+                ${cert.issuer ? `<div class="text-xs mb-1"><b>Issuer:</b> ${cert.issuer.organizationName || cert.issuer.commonName || JSON.stringify(cert.issuer)}</div>` : ''}
+                ${cert.san?.length ? `<div class="text-xs mb-1"><b>SANs:</b> ${cert.san.join(', ')}</div>` : ''}
+                ${cert.valid_from ? `<div class="text-xs mb-1"><b>Valid:</b> ${cert.valid_from} → ${cert.valid_until} ${cert.expired ? '<span class="text-red font-bold">EXPIRED</span>' : `<span class="text-green">(${cert.days_remaining} days left)</span>`}</div>` : ''}
+                <div class="text-xs"><b>Trusted:</b> ${cert.trusted === true ? '<span class="text-green">Yes</span>' : cert.trusted === false ? `<span class="text-red">No - ${cert.verification_error || ''}</span>` : 'Unknown'}</div>
+            </div>
+            <div class="card mb-3 p-3"><h4 class="text-sm font-bold mb-2">Protocols</h4>
+                <div class="grid-3 gap-2">${Object.entries(d.protocols || {}).map(([k, v]) => 
+                    `<div class="text-xs p-2 rounded" style="background:var(--bg-primary)"><b>${k}:</b> ${v === true ? '<span class="text-green font-bold">✓ Supported</span>' : v === false ? '<span class="text-muted">✗ Not supported</span>' : '<span class="text-yellow">?</span>'}</div>`
+                ).join('')}</div>
+            </div>
+            ${d.vulnerabilities?.length ? `<div class="card p-3"><h4 class="text-sm font-bold mb-2 text-red">Vulnerabilities (${d.vulnerabilities.length})</h4>
+                ${d.vulnerabilities.map(v => `<div class="text-xs mb-2 p-2 rounded" style="background:var(--bg-primary)">
+                    <span class="badge badge-${v.severity}">${v.severity}</span> <b>${v.type}</b>: ${v.description}
+                    ${v.recommendation ? `<br><i class="text-muted">→ ${v.recommendation}</i>` : ''}
+                </div>`).join('')}</div>` : ''}`;
+    }
+
+    async function doTrace() {
+        const t = el('traceInput').value.trim();
+        if (!t) return;
+        
+        el('traceResult').innerHTML = '<div class="pulse">Tracing route... (may take 60s)</div>';
+        const d = await api('/traceroute', {
+            method: 'POST',
+            body: JSON.stringify({ target: t, advanced: el('traceAdv')?.checked })
+        });
+        
+        if (!d) {
+            el('traceResult').innerHTML = 'Error';
+            return;
+        }
+        
+        if (d.error) {
+            el('traceResult').innerHTML = `<div class="text-red">${d.error}</div>`;
+            return;
+        }
+        
+        const icons = { 'router': '🔀', 'firewall': '🛡️', 'internal': '🏠', 'internet': '🌐', 'cdn': '⚡', 'isp': '📡' };
+        
+        let html = `<div class="text-sm mb-3"><b>${d.total_hops}</b> hops to <span class="mono text-cyan">${d.target}</span> ${d.advanced ? '<span class="badge badge-info">Advanced</span>' : ''}</div>
+            <table><tr><th>Hop</th><th>Type</th><th>IP</th><th>Host</th><th>ASN</th><th>RTT (ms)</th></tr>
+            ${(d.hops || []).map(h => {
+                return `<tr><td>${h.hop}</td><td>${icons[h.host_type] || '❓'}</td><td class="mono text-cyan">${h.ip}</td>
+                    <td class="text-muted text-xs">${h.hostname || '-'}</td><td class="mono text-xs">${h.asn || '-'}</td>
+                    <td class="mono">${h.avg_rtt || '-'}</td></tr>`;
+            }).join('')}</table>`;
+        
+        if (d.latency_analysis?.length) {
+            html += `<div class="card mt-3 p-3"><h4 class="text-sm font-bold mb-2 text-yellow">⚠ Latency Analysis</h4>
+                ${d.latency_analysis.map(a => `<div class="text-xs mb-1"><span class="badge badge-${a.severity}">${a.severity}</span> Hop ${a.hop}: +${a.delay_ms}ms - ${a.note}</div>`).join('')}</div>`;
+        }
+        
+        el('traceResult').innerHTML = html;
+    }
+
+    // ============ CVE ============
+    async function searchCVE() {
+        const q = el('cveSearch')?.value || '';
+        const s = el('cveSev')?.value || '';
+        const d = await api(`/cve/search?q=${encodeURIComponent(q)}&severity=${s}`);
+        
+        if (!d) return;
+        
+        el('cveResults').innerHTML = d.cves?.length ? 
+            `<table><tr><th>CVE</th><th>Severity</th><th>CVSS</th><th>Products</th><th>Description</th></tr>
+            ${d.cves.map(c => `<tr><td class="mono font-bold"><a href="https://nvd.nist.gov/vuln/detail/${c.cve_id}" target="_blank" style="color:var(--accent-cyan);text-decoration:none" title="View on NVD">${c.cve_id} ↗</a></td>
+                <td><span class="badge badge-${c.severity}">${c.severity}</span></td>
+                <td class="font-bold">${c.cvss_score}</td>
+                <td class="text-xs">${c.products || ''}</td>
+                <td class="text-xs text-muted">${(c.description || '').substring(0, 120)}</td></tr>`).join('')}</table>
+            <div class="text-xs text-muted mt-2">${d.total} results</div>` : 
+            '<div class="text-muted">No results</div>';
+    }
+
+    async function updateCVE() {
+        notify('Updating CVE database (Local + NVD + CVEDetails)...', 'info');
+        const d = await api('/cve/update', { method: 'POST' });
+        if (d) {
+            notify(`CVE DB updated: ${d.total_entries || 0} entries`, 'success');
+            searchCVE();
+        }
+    }
+
+    // ============ DASHBOARD ============
+    async function loadDashboard() {
+        const s = await api('/stats');
+        if (!s) return;
+        
+        el('dashCards').innerHTML = `
+            <div class="card" style="text-align:center"><div class="text-2xl font-bold text-cyan">${s.total_scans}</div><div class="text-xs text-muted">Total Scans</div></div>
+            <div class="card" style="text-align:center"><div class="text-2xl font-bold text-green">${s.completed}</div><div class="text-xs text-muted">Completed</div></div>
+            <div class="card" style="text-align:center"><div class="text-2xl font-bold text-yellow">${s.avg_risk}</div><div class="text-xs text-muted">Avg Risk</div></div>
+            <div class="card" style="text-align:center"><div class="text-2xl font-bold text-red">${s.high_alerts}</div><div class="text-xs text-muted">High Alerts</div></div>`;
+        
+        el('dashRecent').innerHTML = (s.recent || []).map(r => 
+            `<div class="flex justify-between p-2 text-sm" style="border-bottom:1px solid var(--border)">
+                <span class="mono text-cyan">${r.target}</span>
+                <span class="badge badge-${r.risk_score > 70 ? 'critical' : r.risk_score > 40 ? 'medium' : 'low'}">${r.risk_score}</span>
+            </div>`).join('') || 'No scans';
+        
+        const al = await api('/alerts?limit=10');
+        el('dashAlerts').innerHTML = (al?.alerts || []).map(a => 
+            `<div class="flex justify-between p-2 text-xs" style="border-bottom:1px solid var(--border)">
+                <span>${a.message}</span>
+                <span class="badge badge-${a.severity}">${a.severity}</span>
+            </div>`).join('') || 'No alerts';
+    }
+
+    async function loadStats() {
+        const s = await api('/stats');
+        if (!s) return;
+        
+        el('sideStats').innerHTML = `
+            <div class="flex justify-between mb-2"><span class="text-muted">Total:</span><span class="text-cyan font-bold">${s.total_scans}</span></div>
+            <div class="flex justify-between mb-2"><span class="text-muted">Active:</span><span class="text-yellow font-bold">${s.active}</span></div>
+            <div class="flex justify-between mb-2"><span class="text-muted">Avg Risk:</span><span class="font-bold">${s.avg_risk}%</span></div>
+            <div class="flex justify-between mb-2"><span class="text-muted">CVEs:</span><span class="text-purple font-bold">${s.cve_count}</span></div>
+            <div class="flex justify-between"><span class="text-muted">Ports:</span><span class="text-green font-bold">${s.total_ports}</span></div>`;
+    }
+
+    setInterval(() => { if (SESSION.id) loadStats(); }, 30000);
+
+    // ============ DISCOVERY ============
+    el('discBtn').onclick = async () => {
+        const net = el('discNet').value.trim();
+        if (!net) {
+            notify('Enter network', 'warning');
+            return;
+        }
+        
+        el('discBtn').disabled = true;
+        el('discBtn').textContent = 'Scanning...';
+        
+        const d = await api('/discover', {
+            method: 'POST',
+            body: JSON.stringify({
+                network: net,
+                ports: el('discPorts').checked,
+                os: el('discOS').checked
+            })
+        });
+        
+        el('discBtn').disabled = false;
+        el('discBtn').textContent = 'Discover';
+        
+        if (!d) return;
+        
+        el('discResults').classList.remove('hidden');
+        
+        const icons = { server: '🖥️', workstation: '💻', router: '🔀', printer: '🖨️', switch: '🔌', mobile: '📱', unknown: '❓' };
+        
+        el('discHosts').innerHTML = `
+            <div class="text-sm mb-3">${d.hosts_found} hosts found on ${d.network}</div>
+            <table><tr><th>IP</th><th>Type</th><th>Hostname</th><th>OS</th><th>Ports</th></tr>
+            ${(d.hosts || []).map(h => `<tr><td class="mono text-cyan">${h.ip}</td>
+                <td>${icons[h.host_type] || '❓'}${h.host_type}</td>
+                <td>${h.hostname || '-'}</td>
+                <td class="text-xs">${h.os || '-'}</td>
+                <td class="text-xs">${(h.ports || []).map(p => p.port + '/' + p.service).join(', ') || '-'}</td></tr>`).join('')}</table>`;
+    };
+
+    // ============ HISTORY ============
+    async function loadHistory() {
+        const type = el('historyType')?.value || 'all';
+        const d = await api(`/scan/history?limit=50&type=${type}`);
+        if (!d) return;
+        
+        el('historyTable').innerHTML = d.scans?.length ? 
+            `<table><tr><th>Target</th><th>Type</th><th>Details</th><th>Risk</th><th>Status</th><th>User</th><th>Date</th><th>Actions</th></tr>
+            ${d.scans.map(s => {
+                if (s.type === 'nmap') {
+                    return `<tr style="cursor:pointer" class="hover-row" onclick="window._loadScan('${s.job_id}')">
+                        <td class="mono text-cyan">${s.target}</td>
+                        <td><span class="badge badge-info">nmap</span></td>
+                        <td>${s.scan_level || ''} (${s.open_ports || 0} ports)</td>
+                        <td><span class="badge badge-${(s.risk_score || 0) > 70 ? 'critical' : (s.risk_score || 0) > 40 ? 'medium' : 'low'}">${s.risk_score || 0}</span></td>
+                        <td><span class="badge badge-${s.status === 'completed' ? 'low' : s.status === 'running' ? 'medium' : 'critical'}">${s.status}</span></td>
+                        <td class="text-xs text-muted">${s.username || '-'}</td>
+                        <td class="text-xs text-muted">${(s.timestamp || '').substring(0, 16)}</td>
+                        <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();window._loadScan('${s.job_id}')">📊 View</button></td>
+                    </tr>`;
+                } else {
+                    return `<tr style="cursor:pointer" class="hover-row" onclick="window._loadScan('${s.job_id}')">
+                        <td class="mono text-cyan">${s.target}</td>
+                        <td><span class="badge badge-critical">risk</span></td>
+                        <td>${s.modules || ''} (${s.findings || 0} findings)</td>
+                        <td><span class="badge badge-${(s.findings || 0) > 5 ? 'critical' : (s.findings || 0) > 2 ? 'high' : 'medium'}">${s.findings || 0}</span></td>
+                        <td><span class="badge badge-${s.status === 'completed' ? 'low' : s.status === 'running' ? 'medium' : 'critical'}">${s.status}</span></td>
+                        <td class="text-xs text-muted">${s.username || '-'}</td>
+                        <td class="text-xs text-muted">${(s.timestamp || '').substring(0, 16)}</td>
+                        <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();window._loadScan('${s.job_id}')">📊 View</button></td>
+                    </tr>`;
+                }
+            }).join('')}</table>` : 
+            '<div class="text-muted p-4">No scan history yet</div>';
+    }
+
+    window._loadScan = async function(jid) {
+        notify('Loading scan...', 'info');
+        const d = await api(`/scan/${jid}/result`);
+        if (d && d.results) {
+            lastResults = d.results;
+            showResults(d.results);
+            notify('Scan loaded', 'success');
+        } else {
+            notify('Could not load scan', 'error');
+        }
+    };
+
+    // ============ LOGS ============
+    async function loadLogs() {
+        const d = await api('/logs/system');
+        if (!d) return;
+        
+        el('logTerminal').innerHTML = (d.logs || []).map(l => {
+            let cls = '';
+            if (l.includes('ERROR')) cls = 'log-error';
+            else if (l.includes('WARNING')) cls = 'log-warning';
+            else if (l.includes('INFO')) cls = 'log-info';
+            else if (l.includes('CRITICAL')) cls = 'log-critical';
+            return `<div class="${cls}">${l}</div>`;
+        }).join('');
+    }
+
+    // ============ ADMIN FUNCTIONS ============
+    // Fonction pour activer un utilisateur
+    // ============ ADMIN FUNCTIONS ============
+    async function loadAdmin() {
+        console.log("🔄 Loading admin panel...");
+        
+        if (SESSION.role !== 'admin') {
+            console.log("⛔ User is not admin");
+            const adminTab = document.querySelector('[data-tab="admin"]');
+            if (adminTab) adminTab.style.display = 'none';
+            return;
+        }
+        
+        try {
+            await loadUsers();
+            await loadAuditLog();
+            await loadSystemInfo();
+        } catch (error) {
+            console.error("❌ Error loading admin panel:", error);
+            notify("Error loading admin data", "error");
+        }
+    }
+
+    // Charger la liste des utilisateurs
+    async function loadUsers() {
+        console.log("👥 Loading users...");
+        const data = await api('/admin/users');
+        
+        if (!data || !data.users) {
+            console.error("❌ Failed to load users");
+            return;
+        }
+        
+        const userList = document.getElementById('userList');
+        
+        if (data.users.length === 0) {
+            userList.innerHTML = '<div class="text-muted p-4 text-center">No users found</div>';
+            return;
+        }
+        
+        userList.innerHTML = `
+            <table style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data.users.map(u => {
+                        const isSelf = u.username === SESSION.username;
+                        return `
+                        <tr>
+                            <td class="font-semibold">
+                                ${u.username} 
+                                ${isSelf ? '<span class="badge badge-info" style="font-size:0.6rem">YOU</span>' : ''}
+                            </td>
+                            <td>
+                                <span class="badge badge-${u.role === 'admin' ? 'critical' : 'info'}">
+                                    ${u.role === 'admin' ? '🛡️ Admin' : '👁️ Viewer'}
+                                </span>
+                            </td>
+                            <td>
+                                ${u.is_active 
+                                    ? '<span class="badge badge-low">✅ ACTIVE</span>' 
+                                    : '<span class="badge badge-critical">❌ DISABLED</span>'}
+                            </td>
+                            <td class="text-xs text-muted">${u.last_login ? u.last_login.substring(0, 16) : 'never'}</td>
+                            <td>
+                                ${!isSelf ? `
+                                    <div class="flex gap-1">
+                                        ${u.is_active 
+                                            ? `<button class="btn btn-ghost btn-sm" onclick="disableUser('${u.id}', '${u.username}')" title="Disable user">
+                                                <i data-lucide="user-x" style="width:12px;height:12px"></i>
+                                            </button>`
+                                            : `<button class="btn btn-ghost btn-sm" onclick="enableUser('${u.id}', '${u.username}')" title="Enable user">
+                                                <i data-lucide="user-check" style="width:12px;height:12px"></i>
+                                            </button>`
+                                        }
+                                        <button class="btn btn-ghost btn-sm" onclick="resetUserPassword('${u.id}', '${u.username}')" title="Reset password">
+                                            <i data-lucide="key" style="width:12px;height:12px"></i>
+                                        </button>
+                                        <button class="btn btn-ghost btn-sm" onclick="deleteUser('${u.id}', '${u.username}')" title="Delete user">
+                                            <i data-lucide="trash-2" style="width:12px;height:12px;color:var(--accent-red)"></i>
+                                        </button>
+                                    </div>
+                                ` : '<span class="text-muted text-xs">—</span>'}
+                            </td>
+                        </tr>
+                    `}).join('')}
+                </tbody>
+            </table>
+        `;
+        
+        // Recréer les icônes
+        lucide.createIcons();
+    }
+
+    // Activer un utilisateur
+    async function enableUser(userId, username) {
+        if (!confirm(`Are you sure you want to enable user "${username}"?`)) {
+            return;
+        }
+        
+        console.log(`✅ Enabling user ${userId} (${username})`);
+        
+        const data = await api(`/admin/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ is_active: true })
+        });
+        
+        if (data && data.success) {
+            notify(`User "${username}" enabled successfully`, 'success');
+            await loadUsers(); // Recharger la liste
+        } else {
+            notify(`Failed to enable user: ${data?.error || 'Unknown error'}`, 'error');
+        }
+    }
+
+    // Désactiver un utilisateur
+    async function disableUser(userId, username) {
+        if (!confirm(`Are you sure you want to disable user "${username}"?`)) {
+            return;
+        }
+        
+        console.log(`❌ Disabling user ${userId} (${username})`);
+        
+        const data = await api(`/admin/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ is_active: false })
+        });
+        
+        if (data && data.success) {
+            notify(`User "${username}" disabled successfully`, 'success');
+            await loadUsers(); // Recharger la liste
+        } else {
+            notify(`Failed to disable user: ${data?.error || 'Unknown error'}`, 'error');
+        }
+    }
+
+    // Supprimer un utilisateur
+    async function deleteUser(userId, username) {
+        if (!confirm(`⚠️ Are you sure you want to PERMANENTLY DELETE user "${username}"?\n\nThis action cannot be undone!`)) {
+            return;
+        }
+        
+        // Double confirmation pour la suppression
+        if (!confirm(`⚠️ FINAL WARNING: Delete user "${username}" permanently?`)) {
+            return;
+        }
+        
+        console.log(`🗑️ Deleting user ${userId} (${username})`);
+        
+        const data = await api(`/admin/users/${userId}`, {
+            method: 'DELETE'
+        });
+        
+        if (data && data.success) {
+            notify(`User "${username}" deleted successfully`, 'success');
+            await loadUsers(); // Recharger la liste
+        } else {
+            notify(`Failed to delete user: ${data?.error || 'Unknown error'}`, 'error');
+        }
+    }
+
+    // Réinitialiser le mot de passe
+    async function resetUserPassword(userId, username) {
+        const newPassword = prompt(`Enter new password for user "${username}" (min 8 characters):`, "LabSec2025!");
+        if (!newPassword) return;
+        
+        if (newPassword.length < 8) {
+            notify("Password must be at least 8 characters", "warning");
+            return;
+        }
+        
+        if (!confirm(`Reset password for user "${username}"?`)) {
+            return;
+        }
+        
+        console.log(`🔑 Resetting password for user ${userId} (${username})`);
+        
+        const data = await api(`/admin/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ 
+                reset_password: true,
+                new_password: newPassword 
+            })
+        });
+        
+        if (data && data.success) {
+            notify(`Password for "${username}" reset successfully`, 'success');
+        } else {
+            notify(`Failed to reset password: ${data?.error || 'Unknown error'}`, 'error');
+        }
+    }
+
+    // Créer un nouvel utilisateur
+    async function createUser() {
+        const username = document.getElementById('newUser').value.trim();
+        const password = document.getElementById('newPass').value;
+        const role = document.getElementById('newRole').value;
+        
+        if (!username || !password) {
+            notify('Username and password are required', 'warning');
+            return;
+        }
+        
+        if (password.length < 8) {
+            notify('Password must be at least 8 characters', 'warning');
+            return;
+        }
+        
+        console.log(`👤 Creating new user: ${username} (${role})`);
+        
+        const data = await api('/admin/users', {
+            method: 'POST',
+            body: JSON.stringify({ 
+                username: username, 
+                password: password, 
+                role: role 
+            })
+        });
+        
+        if (data && data.success) {
+            notify(`User "${username}" created successfully`, 'success');
+            // Vider le formulaire
+            document.getElementById('newUser').value = '';
+            document.getElementById('newPass').value = '';
+            // Recharger la liste
+            await loadUsers();
+        } else {
+            notify(`Failed to create user: ${data?.error || 'Unknown error'}`, 'error');
+        }
+    }
+
+    // Charger les logs d'audit
+    async function loadAuditLog() {
+        console.log("📋 Loading audit log...");
+        const data = await api('/admin/audit-log?limit=50');
+        
+        if (!data || !data.logs) {
+            document.getElementById('auditLog').innerHTML = '<div class="text-muted p-4 text-center">No audit logs</div>';
+            return;
+        }
+        
+        if (data.logs.length === 0) {
+            document.getElementById('auditLog').innerHTML = '<div class="text-muted p-4 text-center">No audit logs</div>';
+            return;
+        }
+        
+        document.getElementById('auditLog').innerHTML = data.logs.map(l => {
+            let severityClass = 'info';
+            if (l.severity === 'warning') severityClass = 'high';
+            if (l.severity === 'critical') severityClass = 'critical';
+            
+            return `
+                <div class="text-xs p-2" style="border-bottom:1px solid var(--border)">
+                    <div class="flex justify-between">
+                        <span class="text-muted">${l.timestamp ? l.timestamp.substring(0, 19) : ''}</span>
+                        <span class="badge badge-${severityClass}" style="font-size:.5rem">${l.severity || 'info'}</span>
+                    </div>
+                    <div class="font-semibold">${l.username || 'system'}</div>
+                    <div class="text-muted">${l.action} ${l.details || ''}</div>
+                    <div class="text-muted" style="font-size:0.6rem">IP: ${l.ip || 'unknown'}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Charger les informations système
+    async function loadSystemInfo() {
+        console.log("💻 Loading system info...");
+        const data = await api('/system/info');
+        
+        if (!data) {
+            document.getElementById('sysInfo').innerHTML = 'Failed to load system info';
+            return;
+        }
+        
+        document.getElementById('sysInfo').innerHTML = `
+            <div class="mono text-xs">
+                <div class="flex justify-between"><span class="text-muted">Hostname:</span> ${data.hostname || 'unknown'}</div>
+                <div class="flex justify-between"><span class="text-muted">IP:</span> ${data.ip || 'unknown'}</div>
+                <div class="flex justify-between"><span class="text-muted">Python:</span> ${data.python || 'unknown'}</div>
+                <div class="flex justify-between"><span class="text-muted">Nmap:</span> ${data.nmap_version || 'not installed'}</div>
+                <div class="flex justify-between"><span class="text-muted">Uptime:</span> ${Math.round((data.uptime || 0) / 60)} min</div>
+            </div>
+        `;
+    }
+
+    // Backup database
+    async function backupDatabase() {
+        console.log("💾 Backing up database...");
+        const data = await api('/admin/backup', { method: 'POST' });
+        if (data) {
+            notify('Database backup completed successfully', 'success');
+        }
+    }
+
+    // Confirmer et effacer les données
+    async function confirmClearDB() {
+        if (!confirm('⚠️ WARNING: This will delete ALL scan history and results!\n\nAre you absolutely sure?')) {
+            return;
+        }
+        
+        if (!confirm('⚠️ FINAL WARNING: This action cannot be undone. Delete all scan data?')) {
+            return;
+        }
+        
+        console.log("🗑️ Clearing database...");
+        const data = await api('/admin/clear', { method: 'POST' });
+        if (data) {
+            notify('All scan data cleared successfully', 'warning');
+        }
+    }
+
+    // Changer son propre mot de passe
+    async function changeMyPassword() {
+        const oldPw = document.getElementById('oldPw').value;
+        const newPw = document.getElementById('newPw').value;
+        
+        if (!oldPw || !newPw) {
+            notify('Please fill both password fields', 'warning');
+            return;
+        }
+        
+        if (newPw.length < 8) {
+            notify('New password must be at least 8 characters', 'warning');
+            return;
+        }
+        
+        console.log("🔐 Changing password...");
+        
+        const data = await api('/auth/change-password', {
+            method: 'POST',
+            body: JSON.stringify({ 
+                old_password: oldPw, 
+                new_password: newPw 
+            })
+        });
+        
+        if (data && data.success) {
+            notify('Password changed successfully', 'success');
+            document.getElementById('oldPw').value = '';
+            document.getElementById('newPw').value = '';
+        } else {
+            notify('Failed to change password: ' + (data?.error || 'Unknown error'), 'error');
+        }
+    }
+
+    // ============ ADMIN ============
+    async function loadAdmin() {
+        console.log("Loading admin panel...");
+        
+        if (SESSION.role !== 'admin') {
+            console.log("User is not admin, hiding admin panel");
+            const adminTab = document.querySelector('[data-tab="admin"]');
+            if (adminTab) adminTab.style.display = 'none';
+            return;
+        }
+        
+        const adminTab = document.querySelector('[data-tab="admin"]');
+        if (adminTab) adminTab.style.display = 'flex';
+        
+        try {
+            const usersData = await api('/admin/users');
+            if (usersData && usersData.users) {
+                const userList = document.getElementById('userList');
+                userList.innerHTML = `<table style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Auth</th>
+                            <th>Status</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${usersData.users.map(u => {
+                            const isSelf = u.username === SESSION.username;
+                            return `
+                            <tr>
+                                <td class="font-semibold">${u.username} ${isSelf ? '<span class="text-muted">(you)</span>' : ''}</td>
+                                <td><span class="badge badge-${u.role === 'admin' ? 'critical' : 'info'}">${u.role}</span></td>
+                                <td>${u.auth_type}</td>
+                                <td>
+                                    ${u.is_active 
+                                        ? '<span class="badge badge-low">ACTIVE</span>' 
+                                        : '<span class="badge badge-critical">DISABLED</span>'}
+                                </td>
+                                <td class="text-xs text-muted">${u.last_login ? u.last_login.substring(0, 16) : 'never'}</td>
+                                <td>
+                                    ${!isSelf ? `
+                                        ${u.is_active 
+                                            ? `<button class="btn btn-ghost btn-sm" onclick="disableUser('${u.id}')">Disable</button>`
+                                            : `<button class="btn btn-ghost btn-sm" onclick="enableUser('${u.id}')">Enable</button>`
+                                        }
+                                        <button class="btn btn-ghost btn-sm" onclick="resetUserPassword('${u.id}')">Reset PW</button>
+                                    ` : ''}
+                                </td>
+                            </tr>
+                        `}).join('')}
+                    </tbody>
+                </table>`;
+            }
+            
+            const auditData = await api('/admin/audit-log?limit=50');
+            if (auditData && auditData.logs) {
+                const auditLog = document.getElementById('auditLog');
+                auditLog.innerHTML = auditData.logs.map(l => `
+                    <div class="text-xs p-2" style="border-bottom:1px solid var(--border)">
+                        <span class="text-muted">${l.timestamp ? l.timestamp.substring(0, 19) : ''}</span>
+                        <span class="font-semibold">${l.username || '-'}</span>
+                        <span class="badge badge-${l.severity === 'warning' ? 'high' : l.severity === 'critical' ? 'critical' : 'info'}" style="font-size:.6rem">${l.action}</span>
+                        <span class="text-muted"> ${l.details || ''}</span>
+                        <span class="text-xs text-muted">[${l.ip || ''}]</span>
+                    </div>
+                `).join('');
+            }
+            
+            const sysInfo = await api('/system/info');
+            if (sysInfo) {
+                document.getElementById('sysInfo').innerHTML = `
+                    <div class="mono text-xs" style="background:var(--bg-primary);padding:10px;border-radius:6px">
+                        Hostname: ${sysInfo.hostname}<br>
+                        IP: ${sysInfo.ip}<br>
+                        Python: ${sysInfo.python}<br>
+                        Nmap: ${sysInfo.nmap_version}<br>
+                        Uptime: ${Math.round(sysInfo.uptime / 60)} min
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error("Error loading admin panel:", error);
+            notify("Error loading admin data", "error");
+        }
+    }
+
+    async function addUser() {
+        const un = el('newUser').value.trim();
+        const pw = el('newPass').value;
+        const rl = el('newRole').value;
+        
+        if (!un || !pw) {
+            notify('Fill all fields', 'warning');
+            return;
+        }
+        
+        if (pw.length < 8) {
+            notify('Password must be at least 8 characters', 'warning');
+            return;
+        }
+        
+        const d = await api('/admin/users', {
+            method: 'POST',
+            body: JSON.stringify({ username: un, password: pw, role: rl })
+        });
+        
+        if (d && d.success) {
+            notify(`User ${un} created`, 'success');
+            el('newUser').value = '';
+            el('newPass').value = '';
+            loadAdmin();
+        }
+    }
+
+    async function doBackup() {
+        const d = await api('/admin/backup', { method: 'POST' });
+        if (d) notify('Backup done', 'success');
+    }
+
+    async function clearDB() {
+        if (!confirm('WARNING: This will delete ALL scan data. Are you absolutely sure?')) {
+            return;
+        }
+        
+        const d = await api('/admin/clear', { method: 'POST' });
+        if (d) notify('Data cleared', 'success');
+    }
+
+    async function changePw() {
+        const o = el('oldPw').value;
+        const n = el('newPw').value;
+        
+        if (!o || !n) {
+            notify('Fill both fields', 'warning');
+            return;
+        }
+        
+        if (n.length < 8) {
+            notify('New password must be at least 8 characters', 'warning');
+            return;
+        }
+        
+        const d = await api('/auth/change-password', {
+            method: 'POST',
+            body: JSON.stringify({ old_password: o, new_password: n })
+        });
+        
+        if (d && d.success) {
+            notify('Password changed', 'success');
+            el('oldPw').value = '';
+            el('newPw').value = '';
+        }
+    }
+
+    // ============ INIT ============
+    (async () => {
+        const d = await api('/auth/session');
+        if (d && d.authenticated) {
+            SESSION = { id: null, username: d.username, role: d.role };
+            showApp();
+        } else {
+            showLogin();
+        }
+        lucide.createIcons();
+    })();
+    </script>
+</body>
+</html>
