@@ -1,0 +1,20 @@
+# Dictionnaire RADIUS minimal - compatible Microsoft NPS
+# Fichier: dictionary.radius
+# Emplacement: /opt/test-debit-reseau/dictionary.radius
+
+ATTRIBUTE	User-Name		1	string
+ATTRIBUTE	User-Password		2	string
+ATTRIBUTE	NAS-IP-Address		4	ipaddr
+ATTRIBUTE	NAS-Port		5	integer
+ATTRIBUTE	Service-Type		6	integer
+ATTRIBUTE	Framed-Protocol		7	integer
+ATTRIBUTE	Class			25	octets
+ATTRIBUTE	NAS-Identifier		32	string
+ATTRIBUTE	NAS-Port-Type		61	integer
+ATTRIBUTE	Message-Authenticator	80	octets
+
+VALUE	Service-Type		Login-User	1
+VALUE	Service-Type		Framed-User	2
+VALUE	Framed-Protocol		PPP		1
+VALUE	NAS-Port-Type		Virtual		5
+VALUE	NAS-Port-Type		Ethernet	15

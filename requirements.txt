@@ -1,0 +1,14 @@
+flask>=2.0.0
+flask-cors>=3.0.10
+python-nmap>=0.7.0
+fpdf>=1.7.2
+apscheduler>=3.9.0
+python-whois>=0.8.0
+python-dateutil>=2.8.2
+requests>=2.28.0
+pyrad>=2.1  # Pour RADIUS
+APScheduler==3.10.4
+cryptography==41.0.7
+pyOpenSSL==23.3.0
+reportlab==4.0.9
+Pillow==12.1.1
