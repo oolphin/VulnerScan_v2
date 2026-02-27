@@ -6,13 +6,13 @@
 # ============================================================================
 
 export RADIUS_SERVER="home.local"
-export RADIUS_SECRET="741aqw**"
+export RADIUS_SECRET="******"
 export RADIUS_PORT="1812"
 export RADIUS_TIMEOUT="5"
 export RADIUS_RETRIES="2"
 
 export RADIUS_NAS_IDENTIFIER="NFM"
-export RADIUS_NAS_IP="192.168.10.60"
+export RADIUS_NAS_IP="192.x.x.60"
 
 export RADIUS_ALLOWED_GROUPS="GRP-RAD-NFM"
 export RADIUS_GROUP_ATTRIBUTE="Class"
